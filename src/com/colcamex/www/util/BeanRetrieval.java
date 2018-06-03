@@ -1,0 +1,138 @@
+package com.colcamex.www.util;
+
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+import java.io.Serializable;
+
+import org.apache.log4j.Logger;
+
+import com.colcamex.www.bean.ConfigurationBeanInterface;
+import com.colcamex.www.bean.ControllerBean;
+import com.colcamex.www.security.Encryption;
+
+
+/**
+ * @author dennis Warren
+ * @ Colcamex
+ * www.colcamex.com
+ * dwarren@colcamex.com
+ * 
+ * Serializes beans and writes them to a flat file.
+ */
+public class BeanRetrieval implements Serializable {
+
+	public static Logger logger = Logger.getLogger("BeanRetrieval");
+	
+	private static String SAVE_PATH = "/var/lib/expedius/.appdata/";
+	private static final long serialVersionUID = 1L;
+
+	
+	
+	public static void setSavePath(String path) {
+		if(path != null){
+			
+			if(! path.equals(getSavePath())) {
+				BeanRetrieval.SAVE_PATH = path;
+			} 
+		}			
+	}
+
+	public static String getSavePath() {
+		return BeanRetrieval.SAVE_PATH;
+	}
+
+	public static long getSerialversionuid() {
+		return serialVersionUID;
+	}
+	
+	public static Object getBean(String beanName) throws FileNotFoundException, IOException, ClassNotFoundException {
+		
+		Object bean = null;
+		ObjectInputStream ois = null;
+
+		if(checkBean(beanName)) {
+			beanName = Encryption.md5(beanName);
+			
+				ois = new ObjectInputStream(
+						new FileInputStream(getSavePath() + beanName)
+				);
+				
+				bean = ois.readObject();
+				
+//			} catch (FileNotFoundException e) {
+//				logger.fatal("File "+ SAVE_PATH + beanName +" not found."+e);
+//			} catch (IOException e) {
+//				logger.fatal("IO Error locating file: " + SAVE_PATH + beanName+e);
+//			} catch (ClassNotFoundException e) {
+//				logger.fatal("Class "+ SAVE_PATH + beanName +" not found."+e);
+//			} finally {
+				if(ois != null) {
+					try {
+						ois.close();
+					} catch (IOException e) {
+						logger.fatal("Error closing Input Stream"+e);
+					}
+				}
+			
+		} else {
+			logger.error("Bean not found.");
+		}	
+		
+		return bean;
+	}
+	
+	public static boolean checkBean(String beanName) {		
+		File file = new File(getSavePath() + Encryption.md5(beanName));
+		return file.exists(); 
+	}
+
+	public static boolean setBean(ConfigurationBeanInterface configurationBean) throws FileNotFoundException, IOException {
+		return setBean((Object) configurationBean);
+	}
+	
+	public static boolean setBean(ControllerBean controllerBean) throws FileNotFoundException, IOException {
+		return setBean((Object) controllerBean);
+	}
+	
+	private static boolean setBean(Object bean) throws FileNotFoundException, IOException {
+		boolean success = false;		
+		String simpleName = null;
+		String beanName = null;
+		
+		if(bean != null) {
+			
+			simpleName = bean.getClass().getSimpleName();
+	
+			beanName = Encryption.md5(simpleName);
+			ObjectOutputStream oos = null;
+
+				oos = new ObjectOutputStream(
+						new FileOutputStream(getSavePath() + beanName)
+				);
+				
+				oos.writeObject(bean);
+				success = true;
+//			} catch (FileNotFoundException e) {
+//				logger.fatal("File "+ SAVE_PATH + beanName +" failed to write."+e);
+//			} catch (IOException e) {	
+//				logger.fatal("File "+ SAVE_PATH + beanName +" failed to write."+e);
+//				
+//			} finally {
+				if(oos != null) {
+					try {
+						oos.close();
+					} catch (IOException e) {
+						logger.fatal("Error closing Output Stream"+e);
+					}
+				}
+			
+		}
+		return success;		
+	}
+
+}
