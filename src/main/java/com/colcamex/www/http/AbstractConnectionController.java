@@ -20,7 +20,6 @@ import javax.net.ssl.SSLSocketFactory;
 import javax.xml.transform.TransformerException;
 
 import org.apache.log4j.Level;
-import org.oscarehr.ws.Exception_Exception;
 import org.w3c.dom.Document;
 
 import com.colcamex.www.bean.ConfigurationBeanInterface;
@@ -42,7 +41,7 @@ import com.colcamex.www.util.ExpediusProperties;
  */
 public abstract class AbstractConnectionController implements Runnable {
 
-	protected static org.apache.log4j.Logger logger = org.apache.log4j.Logger.getLogger("ExpediusConnectionController");
+	protected static org.apache.log4j.Logger logger = org.apache.log4j.Logger.getLogger(AbstractConnectionController.class);
 	protected static Logger customLogger = null;
 	
 	public static final int DOWNLOAD_MODE = 1;
@@ -139,9 +138,9 @@ public abstract class AbstractConnectionController implements Runnable {
 	    	try {
 				ExpediusLog.setup(java.util.logging.Level.INFO, customLogger);			
 			} catch (SecurityException e) {
-				logger.error("Error setting up custom logging" + e);
+				logger.error("Error setting up custom logging", e);
 			} catch (IOException e) {
-				logger.error("Error setting up custom logging" + e);
+				logger.error("Error setting up custom logging", e);
 			}	    	
 
 		} else {
@@ -388,7 +387,9 @@ public abstract class AbstractConnectionController implements Runnable {
 				// point lab results to the handler.
 				getLabHandler().setHl7labs(results);
 				
-				// save the down loaded lab file	
+				// save the down loaded lab file
+				
+				// TODO need to feed in the lab type that is being fed. Endpoint for IHA labs not available yet.
 				try {					 
 					getLabHandler().saveFile(savePath); 	
 				} catch (IOException e) {
@@ -424,20 +425,13 @@ public abstract class AbstractConnectionController implements Runnable {
 			getLabHandler().setLabType( getLabType() );
 			
 			try {
-				// step one
-				getLabHandler().saveHL7();
-				// step two
-				getLabHandler().parseHL7();
+				getLabHandler().saveHL7();				
 			} catch (FileNotFoundException e) {
 				handleError(" There was a problem with persisting lab files to the Oscar database. The target file was not found. ", e, DISMISSABLE_ERROR, true);
 			} catch (RemoteException e) {
 				handleError(" Oscar server is unreachable while loading lab files into the database. Is the webservice configured correctly? ", e, DISMISSABLE_ERROR, true);
 			} catch (IOException e) {
 				handleError(" A file communication error occured while persisting lab files to the Oscar database.", e, DISMISSABLE_ERROR, true);
-			} catch (TransformerException e) {								
-				handleError("There was a problem parsing the lab files into XML for the Oscar database. ", e, DISMISSABLE_ERROR, true); 
-			} catch (Exception_Exception e) {
-				handleError("Unknown webservice Exception from the EMR during transfer. ", e, DISMISSABLE_ERROR, true); 
 			}  finally {
 				if(getLabHandler().getResponseCode() == ExpediusHL7LabHandler.OK) {					
 					logger.info("All " + getServiceName() + " lab Files Transfered and Parsed to Oscar successfully.");

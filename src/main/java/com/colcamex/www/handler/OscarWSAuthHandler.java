@@ -13,7 +13,8 @@ import javax.xml.ws.handler.MessageContext;
 import javax.xml.ws.handler.soap.SOAPHandler;
 import javax.xml.ws.handler.soap.SOAPMessageContext;
 import org.apache.log4j.Logger;
-import org.oscarehr.ws.LoginResultTransfer;
+import org.oscarehr.ws.LoginResultTransfer2;
+
 
 /**
  * @author Dennis Warren 
@@ -22,12 +23,18 @@ import org.oscarehr.ws.LoginResultTransfer;
  * www.colcamex.com 
  * Date: Jan 2016.
  * 
+ * Handler class that overrides handleMessage to modify the message data 
+ * such as in this case add the security header.
+ * 
+ * This needs to be added to the service port handler chain begfore invoking
+ * an endpoint.
+ * 
  */
 public class OscarWSAuthHandler implements SOAPHandler<SOAPMessageContext> {
 
 	public static Logger logger = Logger.getLogger( OscarWSAuthHandler.class );
 
-	private LoginResultTransfer loginResultTransfer;
+	private LoginResultTransfer2 loginResultTransfer;
 
 	@PostConstruct
 	public void init() {
@@ -115,11 +122,11 @@ public class OscarWSAuthHandler implements SOAPHandler<SOAPMessageContext> {
 		return Boolean.TRUE;
 	}
 
-	private LoginResultTransfer getLoginResultTransfer() {
+	private LoginResultTransfer2 getLoginResultTransfer() {
 		return loginResultTransfer;
 	}
 
-	public void setLoginResultTransfer( LoginResultTransfer loginResultTransfer ) {
+	public void setLoginResultTransfer( LoginResultTransfer2 loginResultTransfer ) {
 		logger.debug("Login Result Transfer Token Object set");
 		this.loginResultTransfer = loginResultTransfer;
 	}
