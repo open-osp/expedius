@@ -159,7 +159,7 @@ public class ConfigurationAction extends HttpServlet {
 
     	// get the client status of each service. But only if they are set to run.
     	if(excellerisOn) {
-    		configurationBean = controllerHandler.getConfigurationBean("ExcellerisConfigurationBean");
+    		configurationBean = controllerHandler.getConfigurationBean(ExpediusControllerHandler.EXCELLERIS_CONFIGURATION_NAME);
     		
     		if(configurationBean.isCertificateInstalled()) {
     			excellerisCertStatus = "Security Certificate Installed";
@@ -172,7 +172,7 @@ public class ConfigurationAction extends HttpServlet {
     	}
     	  	
     	if(ihapoiOn) {
-    		configurationBean = controllerHandler.getConfigurationBean("IhaConfigurationBean");
+    		configurationBean = controllerHandler.getConfigurationBean(ExpediusControllerHandler.IHA_CONFIGURATION_NAME);
     		
     		if(configurationBean.isLoginInfoSet()) {
     			ihaLoginStatus = "Login Info Set";

@@ -1,4 +1,4 @@
-package com.colcamex.www.test;
+package com.colcamex.www;
 
 import static org.junit.Assert.*;
 

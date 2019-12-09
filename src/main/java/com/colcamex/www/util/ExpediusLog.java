@@ -15,7 +15,7 @@ import java.util.logging.SimpleFormatter;
 public class ExpediusLog {
 
 	private static String LOG_DIR = "/var/lib/expedius/log/";
-	private static String HTML_LOG_DIR = "/Users/denniswarren/Documents/colcamex/workspace/Servers/Tomcat v6.0 Server at localhost-config/wtpwebapps/Expedius/";
+	private static String HTML_LOG_DIR = "~";
 	
 	private static final String LOG_NAME = "expedius.log";
 	private static String HTML_LOG_NAME = "expediusLog.html";

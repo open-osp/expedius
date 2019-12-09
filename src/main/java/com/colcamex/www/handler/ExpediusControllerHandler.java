@@ -2,14 +2,12 @@ package com.colcamex.www.handler;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.net.MalformedURLException;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.concurrent.ScheduledFuture;
-import javax.xml.rpc.ServiceException;
 import org.apache.log4j.Logger;
 import com.colcamex.www.bean.ConfigurationBeanInterface;
 import com.colcamex.www.bean.ControllerBean;
@@ -40,9 +38,9 @@ public class ExpediusControllerHandler {
 	private static final String DEFAULT_PROVIDER = "999999";
 	private static final String DEFAULT_SERVICE_NAME = "Expedius";
 	
-	private static final String IHA_CONFIGURATION_NAME = "IhaConfigurationBean";
-	private static final String EXCELLERIS_CONFIGURATION_NAME = "ExcellerisConfigurationBean";
-	private static final String CONTROLLER_NAME = "ControllerBean";
+	public static final String IHA_CONFIGURATION_NAME = "IhaConfigurationBean";
+	public static final String EXCELLERIS_CONFIGURATION_NAME = "ExcellerisConfigurationBean";
+	public static final String CONTROLLER_NAME = "ControllerBean";
 	
 	private ControllerBean controllerBean;
 	private HashMap<String, ConfigurationBeanInterface> configurationBeans;	// contain all the settings for each service.
@@ -112,9 +110,7 @@ public class ExpediusControllerHandler {
 		_init(properties, null, null);	
 	}
 
-	private void _init(ExpediusProperties properties, 
-			ControllerBean controllerBean, HashMap<String, 
-			ConfigurationBeanInterface> configurationBeans) {
+	private void _init(ExpediusProperties properties, ControllerBean controllerBean, HashMap<String, ConfigurationBeanInterface> configurationBeans) {
 		Thread thread = Thread.currentThread();
 		thread.setName("ExpediusControllerHandler"+"["+thread.getId()+"]");
 		logger.debug("Initializing ExpediusControllerHandler. Current Thread is: " + thread.getName());

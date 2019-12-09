@@ -7,7 +7,6 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.io.StringWriter;
 import java.net.MalformedURLException;
-import java.rmi.RemoteException;
 
 import javax.net.ssl.HttpsURLConnection;
 import javax.xml.rpc.ServiceException;
@@ -22,8 +21,10 @@ import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 import org.w3c.dom.Document;
 
-import org.oscarehr.ws.*;
 import com.colcamex.www.util.ExpediusProperties;
+
+import net.sf.json.JSONObject;
+import net.sf.json.JSONSerializer;
 
 
 /**
@@ -41,7 +42,7 @@ import com.colcamex.www.util.ExpediusProperties;
  */
 public class ExpediusHL7LabHandler {
 
-	public static Logger logger = Logger.getLogger("ExpediusHL7LabHandler");
+	public static Logger logger = Logger.getLogger(ExpediusHL7LabHandler.class);
 	
 	private static final String DEFAULT_SAVE_PATH = "/var/lib/expedius/labs/";
 	private static final String DOCUMENT_FORMAT = "UTF-8";
@@ -53,7 +54,7 @@ public class ExpediusHL7LabHandler {
 	private String providerNumber;
 	private ByteArrayInputStream byteArrayInputStream;
 	private OutputStream outputStream;
-	private int fileId;
+//	private int fileId;
 	private String savePath;
 	private String serviceName;
 	private String labType;
@@ -143,14 +144,14 @@ public class ExpediusHL7LabHandler {
 	private void setResponseCode(int responseCode) {
 		this.responseCode = responseCode;
 	}
-
-	public int getFileId() {
-		return fileId;
-	}
-
-	private void setFileId(int fileId) {
-		this.fileId = fileId;
-	}
+//
+//	public int getFileId() {
+//		return fileId;
+//	}
+//
+//	private void setFileId(int fileId) {
+//		this.fileId = fileId;
+//	}
 
 	public Document getHl7labs() {
 		return hl7labs;
@@ -207,7 +208,7 @@ public class ExpediusHL7LabHandler {
 	public void reset() {	
 		setHl7labs(null);
 		setFileName(null);
-		setFileId(0);
+//		setFileId(0);
 		setProviderNumber(null);
 	}
 
@@ -267,40 +268,37 @@ public class ExpediusHL7LabHandler {
 	 * @return ExpediusHL7LabHandler.HTTP_WEBSERVICE_ERROR [100] for error. ExpediusHL7LabHandler.OK [200] for success.
 	 * @throws RemoteException
 	 */
-	public void parseHL7() throws RemoteException {
-
-		setResponseCode(HTTP_WEBSERVICE_ERROR);
-		
-		String serviceName = this.getServiceName();
-		String savePath = this.getSavePath();
-		int fileId = this.getFileId();
-		String labType = this.getLabType();
-		String fileName = this.getFileName();
-		
-		if( (serviceName != null) && 
-				(savePath != null) && 
-					(fileId > 0) && 
-						(fileName != null) &&
-							(labType != null) ) {
-
-			if( getWebserviceHandler().parseHL7(serviceName, savePath + fileName, fileId, labType) ) {
-				setResponseCode(OK);
-			}
-
-		}
-
-	}
+//	public void parseHL7() throws RemoteException {
+//
+//		setResponseCode(HTTP_WEBSERVICE_ERROR);
+//		
+//		String serviceName = this.getServiceName();
+//		String savePath = this.getSavePath();
+//		int fileId = this.getFileId();
+//		String labType = this.getLabType();
+//		String fileName = this.getFileName();
+//		
+//		if( (serviceName != null) && 
+//				(savePath != null) && 
+//					(fileId > 0) && 
+//						(fileName != null) &&
+//							(labType != null) ) {
+//
+//			if( getWebserviceHandler().parseHL7(serviceName, savePath + fileName, fileId, labType) ) {
+//				setResponseCode(OK);
+//			}
+//
+//		}
+//
+//	}
 
 	/**
 	 * Overloaded to allow quick save based on settings.
 	 * @return
-	 * @throws TransformerException
-	 * @throws IOException
-	 * @throws RemoteException
-	 * @throws Exception_Exception 
+	 * @throws IOException 
+	 * @throws Exception 
 	 */
-	public void saveHL7() 
-			throws TransformerException, IOException, RemoteException, Exception_Exception  {
+	public void saveHL7() throws IOException {
 
 		if(this.getSavePath() != null) {
 			this.saveHL7( this.getSavePath() );
@@ -315,37 +313,35 @@ public class ExpediusHL7LabHandler {
 	 * Oscars inbox.
 	 * 
 	 * @return False if file failed save. 
-	 * @throws TransformerException 
 	 * @throws IOException 
-	 * @throws Exception_Exception 
+	 * @throws Exception 
 	 */
-	public void saveHL7(String filePath) 
-			throws IOException, TransformerException, RemoteException, Exception_Exception {
-
+	public void saveHL7(String filePath) throws IOException {
 		setResponseCode(HTTP_WEBSERVICE_ERROR);
-		String savedFilePath = null;
-		int oscarFileId = 0;
+		
+		String fileName = this.getFileName();
 
-		// tell Oscar where the file is - check if it has been uploaded in the past.
-		if( (this.getFileName() != null) && 
-				(this.confirmDirectory(filePath, this.getFileName())) ) {
+		if( (fileName != null) && (this.confirmDirectory(filePath, fileName)) ) {
 
-			savedFilePath = new String(filePath + this.getFileName());
+			String savedFilePath = new String(filePath + fileName);
 			
 			logger.debug("HL7 lab file Path: " + savedFilePath);
 			logger.debug("Service Number (provider)" + providerNumber);
-	
-			oscarFileId = getWebserviceHandler().saveHL7(savedFilePath, providerNumber);
-
-			logger.debug("OSCAR returned file id: " + oscarFileId);
 			
-			// Oscar returns a -1 for save failure.
-			// 0 is returned when connection fails.
-			if(oscarFileId > 0) {				
+			String result = getWebserviceHandler().saveHL7(savedFilePath, providerNumber);
+
+			// {"success":0,"message":"Failed insert lab into DB (Likely duplicate lab): 
+			// LabUpload.excelleris_qa.xml.1575872768479 of type: PATHL7", "audit":""} <-- blank or "success"
+			JSONObject jsonResponse = JSONObject.fromObject(result);
+			
+			Integer status = jsonResponse.getInt("success");
+			String message = jsonResponse.getString("message");
+			String audit = jsonResponse.getString("audit");
+
+			if(status > 0 && "success".equalsIgnoreCase(audit)) {				
 				setResponseCode(OK);
-				setFileId(oscarFileId);
 			} else {					
-				logger.debug("Oscar Web Service Error while persisting HL7 lab files.");
+				logger.error("Oscar Web Service Error while persisting HL7 lab files. Server response: "  + message);
 			}
 			
 			close();

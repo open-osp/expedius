@@ -27,7 +27,7 @@ import com.colcamex.www.util.ExpediusProperties;
  */
 public class ExcellerisController extends AbstractConnectionController {
 
-	private static final String DEFAULT_EXCELLERIS_LAB_TYPE = "PATHHL7";
+	private static final String DEFAULT_EXCELLERIS_LAB_TYPE = "EXCELLERIS";
 	//private static final String NODE_AUTHENTICATED = "authentication";
 	private static final String ACK_RETURN_CODE = "0";
 	private static final String RESPONSE_ACCESSGRANTED = "accessgranted";
@@ -36,7 +36,7 @@ public class ExcellerisController extends AbstractConnectionController {
 	private static final String NODE_MESSAGEFORMAT = "MessageFormat";
 	private static final String NODE_VERSION = "Version";
 	private static final String NODE_RETURNCODE = "ReturnCode";
-	private static final String EXCELLERIS_LAB_TYPE = "PATHL7";
+	private static final String EXCELLERIS_LAB_TYPE = "EXCELLERIS";
 	
 	private String labType;
 

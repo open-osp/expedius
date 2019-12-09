@@ -1,0 +1,138 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<wsdl:definitions name="LoginWsService" targetNamespace="http://ws.oscarehr.org/" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/" xmlns:tns="http://ws.oscarehr.org/" xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" xmlns:ns1="http://schemas.xmlsoap.org/soap/http">
+  <wsdl:types>
+    <xs:schema attributeFormDefault="unqualified" elementFormDefault="unqualified" targetNamespace="http://ws.oscarehr.org/" xmlns:xs="http://www.w3.org/2001/XMLSchema">
+      <xs:element name="login" type="tns:login"/>
+      <xs:element name="login2" type="tns:login2"/>
+      <xs:element name="login2Response" type="tns:login2Response"/>
+      <xs:element name="loginResponse" type="tns:loginResponse"/>
+      <xs:complexType name="login">
+        <xs:sequence>
+          <xs:element minOccurs="0" name="arg0" type="xs:string"/>
+          <xs:element minOccurs="0" name="arg1" type="xs:string"/>
+        </xs:sequence>
+      </xs:complexType>
+      <xs:complexType name="loginResponse">
+        <xs:sequence>
+          <xs:element minOccurs="0" name="return" type="tns:loginResultTransfer"/>
+        </xs:sequence>
+      </xs:complexType>
+      <xs:complexType final="extension restriction" name="loginResultTransfer">
+        <xs:sequence>
+          <xs:element minOccurs="0" name="securityId" type="xs:int"/>
+          <xs:element minOccurs="0" name="securityTokenKey" type="xs:string"/>
+        </xs:sequence>
+      </xs:complexType>
+      <xs:complexType name="login2">
+        <xs:sequence>
+          <xs:element minOccurs="0" name="arg0" type="xs:string"/>
+          <xs:element minOccurs="0" name="arg1" type="xs:string"/>
+        </xs:sequence>
+      </xs:complexType>
+      <xs:complexType name="login2Response">
+        <xs:sequence>
+          <xs:element minOccurs="0" name="return" type="tns:loginResultTransfer2"/>
+        </xs:sequence>
+      </xs:complexType>
+      <xs:complexType final="extension restriction" name="loginResultTransfer2">
+        <xs:sequence>
+          <xs:element minOccurs="0" name="provider" type="tns:providerTransfer"/>
+          <xs:element minOccurs="0" name="securityId" type="xs:int"/>
+          <xs:element minOccurs="0" name="securityTokenKey" type="xs:string"/>
+        </xs:sequence>
+      </xs:complexType>
+      <xs:complexType final="extension restriction" name="providerTransfer">
+        <xs:sequence>
+          <xs:element minOccurs="0" name="address" type="xs:string"/>
+          <xs:element minOccurs="0" name="billingNo" type="xs:string"/>
+          <xs:element minOccurs="0" name="comments" type="xs:string"/>
+          <xs:element minOccurs="0" name="dob" type="xs:dateTime"/>
+          <xs:element minOccurs="0" name="email" type="xs:string"/>
+          <xs:element minOccurs="0" name="firstName" type="xs:string"/>
+          <xs:element minOccurs="0" name="hsoNo" type="xs:string"/>
+          <xs:element minOccurs="0" name="lastName" type="xs:string"/>
+          <xs:element minOccurs="0" name="ohipNo" type="xs:string"/>
+          <xs:element minOccurs="0" name="phone" type="xs:string"/>
+          <xs:element minOccurs="0" name="practitionerNo" type="xs:string"/>
+          <xs:element minOccurs="0" name="practitionerNoType" type="xs:string"/>
+          <xs:element minOccurs="0" name="providerActivity" type="xs:string"/>
+          <xs:element minOccurs="0" name="providerNo" type="xs:string"/>
+          <xs:element minOccurs="0" name="providerType" type="xs:string"/>
+          <xs:element minOccurs="0" name="rmaNo" type="xs:string"/>
+          <xs:element minOccurs="0" name="sex" type="xs:string"/>
+          <xs:element minOccurs="0" name="signedConfidentiality" type="xs:dateTime"/>
+          <xs:element minOccurs="0" name="specialty" type="xs:string"/>
+          <xs:element minOccurs="0" name="status" type="xs:string"/>
+          <xs:element minOccurs="0" name="team" type="xs:string"/>
+          <xs:element minOccurs="0" name="title" type="xs:string"/>
+          <xs:element minOccurs="0" name="workPhone" type="xs:string"/>
+        </xs:sequence>
+      </xs:complexType>
+      <xs:element name="NotAuthorisedException" type="tns:NotAuthorisedException"/>
+      <xs:complexType name="NotAuthorisedException">
+        <xs:sequence>
+          <xs:element minOccurs="0" name="message" type="xs:string"/>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:schema>
+  </wsdl:types>
+  <wsdl:message name="login">
+    <wsdl:part element="tns:login" name="parameters"/>
+  </wsdl:message>
+  <wsdl:message name="login2">
+    <wsdl:part element="tns:login2" name="parameters"/>
+  </wsdl:message>
+  <wsdl:message name="login2Response">
+    <wsdl:part element="tns:login2Response" name="parameters"/>
+  </wsdl:message>
+  <wsdl:message name="NotAuthorisedException">
+    <wsdl:part element="tns:NotAuthorisedException" name="NotAuthorisedException"/>
+  </wsdl:message>
+  <wsdl:message name="loginResponse">
+    <wsdl:part element="tns:loginResponse" name="parameters"/>
+  </wsdl:message>
+  <wsdl:portType name="LoginWs">
+    <wsdl:operation name="login">
+      <wsdl:input message="tns:login" name="login"/>
+      <wsdl:output message="tns:loginResponse" name="loginResponse"/>
+      <wsdl:fault message="tns:NotAuthorisedException" name="NotAuthorisedException"/>
+    </wsdl:operation>
+    <wsdl:operation name="login2">
+      <wsdl:input message="tns:login2" name="login2"/>
+      <wsdl:output message="tns:login2Response" name="login2Response"/>
+      <wsdl:fault message="tns:NotAuthorisedException" name="NotAuthorisedException"/>
+    </wsdl:operation>
+  </wsdl:portType>
+  <wsdl:binding name="LoginWsServiceSoapBinding" type="tns:LoginWs">
+    <soap:binding style="document" transport="http://schemas.xmlsoap.org/soap/http"/>
+    <wsdl:operation name="login">
+      <soap:operation soapAction="" style="document"/>
+      <wsdl:input name="login">
+        <soap:body use="literal"/>
+      </wsdl:input>
+      <wsdl:output name="loginResponse">
+        <soap:body use="literal"/>
+      </wsdl:output>
+      <wsdl:fault name="NotAuthorisedException">
+        <soap:fault name="NotAuthorisedException" use="literal"/>
+      </wsdl:fault>
+    </wsdl:operation>
+    <wsdl:operation name="login2">
+      <soap:operation soapAction="" style="document"/>
+      <wsdl:input name="login2">
+        <soap:body use="literal"/>
+      </wsdl:input>
+      <wsdl:output name="login2Response">
+        <soap:body use="literal"/>
+      </wsdl:output>
+      <wsdl:fault name="NotAuthorisedException">
+        <soap:fault name="NotAuthorisedException" use="literal"/>
+      </wsdl:fault>
+    </wsdl:operation>
+  </wsdl:binding>
+  <wsdl:service name="LoginWsService">
+    <wsdl:port binding="tns:LoginWsServiceSoapBinding" name="LoginWsPort">
+      <soap:address location="http://localhost:8080/oscar-SNAPSHOT/ws/LoginService"/>
+    </wsdl:port>
+  </wsdl:service>
+</wsdl:definitions>

@@ -1,8 +1,10 @@
 package com.colcamex.www.handler;
 
+import java.io.BufferedReader;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.util.logging.Logger;
 
 import javax.xml.parsers.DocumentBuilder;
@@ -145,7 +147,7 @@ public class ExpediusW3CDocumentHandler {
 		if(this.document != null) {
 			document = null;
 		}
-		
+		readStream(is);
 		setDocument( getDocumentBuilder().parse(is) );
 		getDocumentBuilder().reset();
 		return getDocument();
@@ -300,6 +302,41 @@ public class ExpediusW3CDocumentHandler {
 		}
 		
 		return attributes;
+	}
+	
+	private void readStream(InputStream is) {
+		
+        BufferedReader br = null;
+         
+        try {
+
+            br = new BufferedReader(new InputStreamReader(is));
+             
+            String line = null;
+             
+            while ((line = br.readLine()) != null) {
+                if (line.equalsIgnoreCase("quit")) {
+                    break;
+                }
+                System.out.println("Line entered : " + line);
+            }
+             
+        }
+        catch (IOException ioe) {
+            System.out.println("Exception while reading input " + ioe);
+        }
+        finally {
+            // close the streams using close method
+            try {
+                if (br != null) {
+                    br.close();
+                }
+            }
+            catch (IOException ioe) {
+                System.out.println("Error while closing stream: " + ioe);
+            }
+ 
+        }
 	}
 
 }
