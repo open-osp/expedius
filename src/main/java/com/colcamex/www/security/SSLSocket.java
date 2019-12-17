@@ -35,11 +35,11 @@ public class SSLSocket {
 	
 	private Logger logger = Logger.getLogger("SSLSocket");
 	
-	protected final static String  TRUSTSTORE_URL = ExpediusProperties.getInstance().getProperty("TRUSTSTORE_URL").trim();
-	protected final static String  STORE_TYPE = ExpediusProperties.getInstance().getProperty("STORE_TYPE").trim();
-	protected final static String  STORE_PASS = ExpediusProperties.getInstance().getProperty("STORE_PASS").trim();
-	protected final static String  HTTPS_PROTOCOL = ExpediusProperties.getInstance().getProperty("HTTPS_PROTOCOL").trim();
-	protected final static String  KEYSTORE_URL = ExpediusProperties.getInstance().getProperty("KEYSTORE_URL").trim();
+	protected final static String  TRUSTSTORE_URL = ExpediusProperties.getProperties().getProperty("TRUSTSTORE_URL").trim();
+	protected final static String  STORE_TYPE = ExpediusProperties.getProperties().getProperty("STORE_TYPE").trim();
+	protected final static String  STORE_PASS = ExpediusProperties.getProperties().getProperty("STORE_PASS").trim();
+	protected final static String  HTTPS_PROTOCOL = ExpediusProperties.getProperties().getProperty("HTTPS_PROTOCOL").trim();
+	protected final static String  KEYSTORE_URL = ExpediusProperties.getProperties().getProperty("KEYSTORE_URL").trim();
 	
 	private final static String DEFAULT_PROVIDER = "SunJSSE";
 	private final static String DEFAULT_FACTORY_TYPE = "SunX509";

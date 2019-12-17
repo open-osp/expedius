@@ -71,8 +71,7 @@ public class ServiceExecuter implements Runnable {
 		
 		// set the connection
 		if(service != null) {
-			//service.setConnection(ExpediusConnect.getInstance());
-			
+
 			// inject the message handler
 			if(getMessageHandler() != null) {
 				service.setMessageHandler(getMessageHandler());

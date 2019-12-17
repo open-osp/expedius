@@ -53,10 +53,10 @@ public class ExpediusConnectTest {
 			HTTPS_PROTOCOL = properties.getProperty("HTTPS_PROTOCOL").trim();
 			KEYSTORE_URL = properties.getProperty("KEYSTORE_URL").trim();
 			//ACK_POSITIVE = properties.getProperty("ACKNOWLEDGE_DOWNLOADS").trim();
-			USER = "oscartreatment1";
-			//USER = ".p-poi-t-Colcamex";
-			PASS = "oscar1";
-			//PASS = "test600test";
+//			USER = "oscartreatment1";
+			USER = ".p-poi-t-Colcamex";
+//			PASS = "oscar1";
+			PASS = "test600test";
 			
 			//USER = "vendor1";
 			//PASS =  "vendor";

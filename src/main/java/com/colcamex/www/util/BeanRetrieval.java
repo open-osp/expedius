@@ -53,31 +53,16 @@ public class BeanRetrieval implements Serializable {
 	public static Object getBean(String beanName) throws FileNotFoundException, IOException, ClassNotFoundException {
 		
 		Object bean = null;
-		ObjectInputStream ois = null;
-
+	
 		if(checkBean(beanName)) {
-			beanName = Encryption.md5(beanName);
 			
-				ois = new ObjectInputStream(
-						new FileInputStream(getSavePath() + beanName)
-				);
-				
+			beanName = Encryption.md5(beanName);	
+			
+			try(ObjectInputStream ois = new ObjectInputStream(
+					new FileInputStream(getSavePath() + beanName))
+			){
 				bean = ois.readObject();
-				
-//			} catch (FileNotFoundException e) {
-//				logger.fatal("File "+ SAVE_PATH + beanName +" not found."+e);
-//			} catch (IOException e) {
-//				logger.fatal("IO Error locating file: " + SAVE_PATH + beanName+e);
-//			} catch (ClassNotFoundException e) {
-//				logger.fatal("Class "+ SAVE_PATH + beanName +" not found."+e);
-//			} finally {
-				if(ois != null) {
-					try {
-						ois.close();
-					} catch (IOException e) {
-						logger.fatal("Error closing Input Stream"+e);
-					}
-				}
+			}
 			
 		} else {
 			logger.error("Bean not found.");
@@ -106,31 +91,16 @@ public class BeanRetrieval implements Serializable {
 		
 		if(bean != null) {
 			
-			simpleName = bean.getClass().getSimpleName();
-	
+			simpleName = bean.getClass().getSimpleName();	
 			beanName = Encryption.md5(simpleName);
-			ObjectOutputStream oos = null;
 
-				oos = new ObjectOutputStream(
-						new FileOutputStream(getSavePath() + beanName)
-				);
-				
+			try(ObjectOutputStream oos = new ObjectOutputStream(
+					new FileOutputStream(getSavePath() + beanName))
+			)
+			{
 				oos.writeObject(bean);
 				success = true;
-//			} catch (FileNotFoundException e) {
-//				logger.fatal("File "+ SAVE_PATH + beanName +" failed to write."+e);
-//			} catch (IOException e) {	
-//				logger.fatal("File "+ SAVE_PATH + beanName +" failed to write."+e);
-//				
-//			} finally {
-				if(oos != null) {
-					try {
-						oos.close();
-					} catch (IOException e) {
-						logger.fatal("Error closing Output Stream"+e);
-					}
-				}
-			
+			}
 		}
 		return success;		
 	}

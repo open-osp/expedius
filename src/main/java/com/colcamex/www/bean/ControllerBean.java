@@ -442,28 +442,6 @@ public class ControllerBean implements Serializable{
 	public String toString() {
 		
 		StringBuilder out = new StringBuilder();
-		/*Field[] fields = this.getClass().getDeclaredFields();
-
-		for(int i = 0; fields.length > i; i++) {
-			
-			Method method;
-			String methodName;
-			try {
-				
-				methodName = fields[i].getName();				
-				method = getClass().getMethod(( "get" + 
-						 methodName.replaceFirst(methodName.substring(0, 1), methodName.substring(0, 1).toUpperCase())));
-				out += " " + method.getName() + "()";
-			} catch (NoSuchMethodException e) {
-				e.printStackTrace();
-			} catch (SecurityException e) {
-				e.printStackTrace();
-			} catch (IllegalArgumentException e) {
-				e.printStackTrace();
-			} 
-			
-		}*/
-		
 		out.append(" Status = " + getStatus()+";  ");
 		out.append("LastDownload = " + getLastDownLoad()+";  ");
 		out.append("NextDownload = " + getNextDownLoad()+";  ");

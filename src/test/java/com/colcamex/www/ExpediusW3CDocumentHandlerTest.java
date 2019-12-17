@@ -29,8 +29,6 @@ public class ExpediusW3CDocumentHandlerTest {
 		testFile = TEST_FILE_EXCELLERIS;	
 		documentHandler = new ExpediusW3CDocumentHandler();
 
-		documentHandler.parse(testFile);
-
 		Document document = documentHandler.getDocument();
 		System.out.println(document);
 		

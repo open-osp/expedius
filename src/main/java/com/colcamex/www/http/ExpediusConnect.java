@@ -2,7 +2,7 @@ package com.colcamex.www.http;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.StringWriter;
+
 import java.net.CookieHandler;
 import java.net.CookieManager;
 import java.net.CookiePolicy;
@@ -20,7 +20,6 @@ import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 
-import org.apache.commons.io.IOUtils;
 import org.w3c.dom.Document;
 import org.xml.sax.SAXException;
 
@@ -39,7 +38,7 @@ public class ExpediusConnect {
 	private static ExpediusConnect instance = null;
 
 	// all connection logging is handled by java.util.logging in a custom log formatter.
-	private static Logger logger = Logger.getLogger("ExpediusConnect"); //ExpediusLog.getLog();
+	private static Logger logger = Logger.getLogger("ExpediusConnect"); 
 
 	private HttpsURLConnection sconn;	
 	private SSLSocketFactory socketFactory;
@@ -78,14 +77,14 @@ public class ExpediusConnect {
 	 * 
 	 * @return ExpediusConnect connection class.
 	 */
-	public static ExpediusConnect getInstance(ExpediusW3CDocumentHandler documentBuilder) { 
+	public static ExpediusConnect getInstance(ExpediusW3CDocumentHandler expediusDocumentBuilder) { 
 
 		if(instance == null) {
 			
-			if (documentBuilder == null) {
+			if (expediusDocumentBuilder == null) {
 				instance = new ExpediusConnect();
 			} else {
-				instance = new ExpediusConnect(documentBuilder);
+				instance = new ExpediusConnect(expediusDocumentBuilder);
 			}
 			
 		} 
@@ -234,25 +233,23 @@ public class ExpediusConnect {
 
 			in = execute(query);
 			
-			if(in != null) {
-
-				if(in.available() > 0) {				
-					try {
-						if(documentHandler != null) {
+			if(in != null && in.available() > 0) {
+			
+				try {
+					if(documentHandler != null) {
 						setResponse( documentHandler.parse(in) );
 					} else if (documentBuilder != null) {
 						setResponse( documentBuilder.parse(in) );
 					}
-						setHasResponse(Boolean.TRUE);
-					} catch (SAXException e) {
-						logger.log(Level.WARNING, "Expedius connection manager failed to parse a server response during Login.", e);
-					} finally {
-						if(getResponseCode() == HttpsURLConnection.HTTP_OK) {
-							setLoggedIn(Boolean.TRUE);
-						}
-			
-						close();						
+					setHasResponse(Boolean.TRUE);
+				} catch (SAXException e) {
+					logger.log(Level.WARNING, "Expedius connection manager failed to parse a server response during Login.", e);
+				} finally {
+					if(getResponseCode() == HttpsURLConnection.HTTP_OK) {
+						setLoggedIn(Boolean.TRUE);
 					}
+		
+					close();						
 				}
 				
 			}			
@@ -276,14 +273,13 @@ public class ExpediusConnect {
 		} catch (MalformedURLException e) {
 			logger.log(Level.SEVERE, "The URI for fetch is not correctly formed.", e);
 			setResponseCode(HttpsURLConnection.HTTP_INTERNAL_ERROR);
-		}finally {
+		} finally {
 			if(path != null) {
 				fetch(path);
 			}
 		}
 	}
-	
-	
+		
 	/**
 	 * Fetch the xml file. (HL7)
 	 * @param query
@@ -298,66 +294,24 @@ public class ExpediusConnect {
 		setHasResponse(Boolean.FALSE);
 		in = execute(httpsUri);	
 
-		if(in != null) {
-			
-			
-			System.out.println("WRITING CONTENTS");
+		if(in != null && in.available() > 0) {
 
-			StringWriter writer = new StringWriter();
-			try {
-				IOUtils.copy(in, writer, "UTF-8");
-			} catch (IOException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-			System.out.println(writer.toString());
-			
-			
-			
-
-			if(in.available() > 0) {
-
-				try {
-					if(documentHandler != null) {
-						setResponse( documentHandler.parse(in) );
-					} else if (documentBuilder != null) {
-						setResponse( documentBuilder.parse(in) );
-					}
-					setHasResponse(Boolean.TRUE);
-				} catch (SAXException e) {
-					logger.log(Level.WARNING, "Expedius connection manager failed to parse a server response during Fetch.", e);
-				} finally {
-				
-					//if( hasResult() ) {
-
-//						Element resultRoot = getResult().getDocumentElement();
-//						documentBuilder.reset();
-//						response = documentBuilder.newDocument();
-//						Element responseRoot = response.createElement(resultRoot.getNodeName());
-//						
-//						// capturing result root in Excelleris labs.
-//						if(resultRoot.hasAttributes()) {
-//							NamedNodeMap attrs = resultRoot.getAttributes();				
-//							for (int i=0; i<attrs.getLength(); i++) {
-//								Attr attr = (Attr) attrs.item(i); 
-//								responseRoot.setAttribute(attr.getName(), attr.getValue());
-//							}
-//						}
-//						
-//						response.appendChild(responseRoot);
-			
-					//} else {
-						// no results.
-						//setResponseCode(HttpsURLConnection.HTTP_NO_CONTENT);
-					//}
-					
-					close();
+			try {							
+				if(documentHandler != null) {	
+					documentHandler.parse(in);
+				} else if (documentBuilder != null) {
+					documentBuilder.parse(in);
 				}
-			} else {
-				setResponseCode(HttpsURLConnection.HTTP_NO_CONTENT);
+				setHasResponse(Boolean.TRUE);
+			} catch (SAXException e) {
+				logger.log(Level.WARNING, "Expedius connection manager failed to parse a server response during Fetch.", e);
+			} finally {
+				close();
 			}
+		} else {
+			setResponseCode(HttpsURLConnection.HTTP_NO_CONTENT);
 		}
-
+		
 	}
 	
 	/**
@@ -411,25 +365,20 @@ public class ExpediusConnect {
 		setHasResponse(Boolean.FALSE);
 		in = execute(httpsUri);
 		
-		if(in != null) {
-
-			if(in.available() > 0) {
-				try {
-					if(documentHandler != null) {
-						setResponse( documentHandler.parse(in) );
-					} else if (documentBuilder != null) {
-						setResponse( documentBuilder.parse(in) );
-					}
-					setHasResponse(Boolean.TRUE);
-				} catch (SAXException e) {
-					logger.log(Level.WARNING, "Expedius connection manager failed to parse a server response during Acknowledge.", e);
-				} finally {
-					close();
+		if(in != null && in.available() > 0) {
+			try {
+				if(documentHandler != null) {
+					setResponse( documentHandler.parse(in) );
+				} else if (documentBuilder != null) {
+					setResponse( documentBuilder.parse(in) );
 				}
+				setHasResponse(Boolean.TRUE);
+			} catch (SAXException e) {
+				logger.log(Level.WARNING, "Expedius connection manager failed to parse a server response during Acknowledge.", e);
+			} finally {
+				close();
 			}
-			
 		}
-
 	}
 	
 	/**
@@ -473,27 +422,25 @@ public class ExpediusConnect {
 			in = execute(httpsUri);	
 		}
 		
-		if(in != null) {
+		if(in != null && in.available() > 0) {
 
 			// this needs to be worked around because Excelleris 
-			// returns an invalid response.
-			if(in.available() > 0) {				
-				try {
-					if(documentHandler != null) {
-						setResponse( documentHandler.parse(in) );
-					} else if (documentBuilder != null) {
-						setResponse( documentBuilder.parse(in) );
-					}
-					setHasResponse(Boolean.TRUE);
-				} catch (SAXException e) {
-					logger.log(Level.WARNING, "Expedius connection manager failed to parse a server response.", e);
-				} finally {
-					close();				
-					setLoggedIn(Boolean.FALSE);				
-					logger.info("Disconnected");
+			// returns an invalid response.				
+			try {
+				if(documentHandler != null) {
+					setResponse( documentHandler.parse(in) );
+				} else if (documentBuilder != null) {
+					setResponse( documentBuilder.parse(in) );
 				}
-				
+				setHasResponse(Boolean.TRUE);
+			} catch (SAXException e) {
+				logger.log(Level.WARNING, "Expedius connection manager failed to parse a server response.", e);
+			} finally {
+				close();				
+				setLoggedIn(Boolean.FALSE);				
+				logger.info("Disconnected");
 			}
+
 		}
 	}
 	
@@ -575,8 +522,8 @@ public class ExpediusConnect {
 		if(httpsUri != null) {
 
 			sconn = (HttpsURLConnection) httpsUri.openConnection();
-			sconn.setConnectTimeout(5000);
-			sconn.setReadTimeout(10000);
+			sconn.setConnectTimeout(60000);
+			sconn.setReadTimeout(300000);
 			sconn.setRequestMethod("GET");
 			//sconn.setDoOutput(false);
 			sconn.setDoInput(true);

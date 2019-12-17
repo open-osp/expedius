@@ -204,7 +204,7 @@ public class ExcellerisConfigurationBean implements ConfigurationBeanInterface {
 	@Override
 	public String getUserLogPath() {
 		if(this.userLogPath == null) {
-			return new String(getServiceName() + "Log" + ".html");
+			return new String(getServiceName() + "-Log" + ".html");
 		}
 		
 		return userLogPath;

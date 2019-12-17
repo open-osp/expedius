@@ -12,6 +12,7 @@ import javax.xml.soap.SOAPMessage;
 import javax.xml.ws.handler.MessageContext;
 import javax.xml.ws.handler.soap.SOAPHandler;
 import javax.xml.ws.handler.soap.SOAPMessageContext;
+
 import org.apache.log4j.Logger;
 import org.oscarehr.ws.LoginResultTransfer2;
 
@@ -26,7 +27,7 @@ import org.oscarehr.ws.LoginResultTransfer2;
  * Handler class that overrides handleMessage to modify the message data 
  * such as in this case add the security header.
  * 
- * This needs to be added to the service port handler chain begfore invoking
+ * This needs to be added to the service port handler chain before invoking
  * an endpoint.
  * 
  */
@@ -53,10 +54,10 @@ public class OscarWSAuthHandler implements SOAPHandler<SOAPMessageContext> {
 		logger.debug( "Is Outbound Message: " + outbound );
 
 		// inject security header to all chained web service clients
-		if ( outbound ) {        	
+		if ( outbound ) {   
 			try {	        	
 				if( message != null && loginResultTransfer != null ) {
-					injectSecurityHeader( message );
+					result = injectSecurityHeader( message );	
 				}
 			} catch (SOAPException e) {
 				logger.error( "Failed to inject security header. Was the login WS invoked prior?" , e );
@@ -118,7 +119,7 @@ public class OscarWSAuthHandler implements SOAPHandler<SOAPMessageContext> {
 		header.addChildElement(securityElem);
 
 		message.saveChanges();
-
+	
 		return Boolean.TRUE;
 	}
 

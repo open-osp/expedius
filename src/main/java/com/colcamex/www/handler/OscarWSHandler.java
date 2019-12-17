@@ -2,7 +2,6 @@ package com.colcamex.www.handler;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -12,28 +11,16 @@ import java.security.NoSuchAlgorithmException;
 import java.security.NoSuchProviderException;
 import java.security.UnrecoverableKeyException;
 import java.security.cert.CertificateException;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 
-import javax.xml.namespace.QName;
-import javax.xml.soap.SOAPElement;
-import javax.xml.soap.SOAPEnvelope;
-import javax.xml.soap.SOAPException;
-import javax.xml.soap.SOAPFactory;
-import javax.xml.soap.SOAPHeader;
-import javax.xml.soap.SOAPMessage;
-import javax.xml.ws.Binding;
+import java.util.List;
+
 import javax.xml.ws.BindingProvider;
 import javax.xml.ws.handler.Handler;
 
-
 import org.apache.cxf.configuration.jsse.TLSClientParameters;
-import org.apache.cxf.endpoint.Client;
 import org.apache.cxf.frontend.ClientProxy;
 
 import org.apache.cxf.transport.http.HTTPConduit;
-import org.apache.cxf.ws.security.wss4j.WSS4JOutInterceptor;
 import org.apache.log4j.Logger;
 import org.oscarehr.ws.LabUploadWs;
 import org.oscarehr.ws.LabUploadWsService;
@@ -56,13 +43,12 @@ public class OscarWSHandler {
 
 	public static Logger logger = Logger.getLogger( OscarWSHandler.class );
 
-	private final static String EMR_WEB_SERVICE = "http://localhost:8080/oscar-SNAPSHOT/ws/";
-	private final static String LOGIN_SERVICE = ExpediusProperties.getInstance().getProperty("EMR_LOGIN_ENDPOINT");
-	private final static String LAB_UPLOAD_SERVICE = ExpediusProperties.getInstance().getProperty("EMR_LAB_UPLOAD_ENDPOINT");
-	private final static URL LOGIN_WSDL = OscarWSHandler.class.getResource("LoginService.wsdl");
-	private final static URL LAB_UPLOAD_WSDL = OscarWSHandler.class.getResource("LabUploadService.wsdl");
-	private final static String LOGIN_SERVICE_URL = EMR_WEB_SERVICE + LOGIN_SERVICE;
-	private final static String LAB_UPLOAD_SERVICE_URL = EMR_WEB_SERVICE + LAB_UPLOAD_SERVICE;
+	private final static String LOGIN_SERVICE = ExpediusProperties.getProperties().getProperty("EMR_LOGIN_ENDPOINT").trim();
+	private final static String LAB_UPLOAD_SERVICE = ExpediusProperties.getProperties().getProperty("EMR_LAB_UPLOAD_ENDPOINT").trim();
+	private final static String HOST = ExpediusProperties.getProperties().getProperty("EMR_HOST_NAME").trim();
+	private final static String CONTEXT = ExpediusProperties.getProperties().getProperty("EMR_CONTEXT_PATH").trim();
+	private final static String WEB_SERVICE = ExpediusProperties.getProperties().getProperty("WEB_SERVICE_ENDPOINT").trim();
+	private final static Boolean SSL_ENABLED  = Boolean.parseBoolean(ExpediusProperties.getProperties().getProperty("EMR_SSL_ENABLED").trim());
 
 	private LabUploadWs hL7LabUploadWs;
 	private LoginWs loginWs;
@@ -74,17 +60,25 @@ public class OscarWSHandler {
 
 		System.setProperty( "com.sun.net.ssl.enableECC", "false");
 		
-		LoginWsService loginWsService = new LoginWsService(LOGIN_WSDL);
+		String protocol = SSL_ENABLED ? "https" : "http"; 
+		String endpointAddress = String.format("%1$s://%2$s/%3$s/%4$s/", protocol, HOST, CONTEXT, WEB_SERVICE);
+		
+		System.out.println("URL " + endpointAddress);
+		
+		LoginWsService loginWsService = new LoginWsService();
 		loginWs = loginWsService.getLoginWsPort();
 		BindingProvider provider = (BindingProvider) loginWs;
-		provider.getRequestContext().put( BindingProvider.ENDPOINT_ADDRESS_PROPERTY, LOGIN_SERVICE_URL  );
-		LabUploadWsService labUploadWsService = new LabUploadWsService(LAB_UPLOAD_WSDL);	
+		provider.getRequestContext().put(BindingProvider.ENDPOINT_ADDRESS_PROPERTY, endpointAddress + LOGIN_SERVICE);
+		
+		LabUploadWsService labUploadWsService = new LabUploadWsService();	
 		hL7LabUploadWs = labUploadWsService.getLabUploadWsPort();		
 		provider = (BindingProvider)hL7LabUploadWs;
-		List<Handler> handlerChain = provider.getBinding().getHandlerChain();
+		provider.getRequestContext().put(BindingProvider.ENDPOINT_ADDRESS_PROPERTY, endpointAddress + LAB_UPLOAD_SERVICE);	
+		
+		List<Handler> handlerChain = provider.getBinding().getHandlerChain();		
 		handlerChain.add(new OscarWSAuthHandler());
-		provider.getBinding().setHandlerChain(handlerChain);		
-		provider.getRequestContext().put( BindingProvider.ENDPOINT_ADDRESS_PROPERTY, LAB_UPLOAD_SERVICE_URL  );	
+		provider.getBinding().setHandlerChain(handlerChain);
+
 	}
 
 	public OscarWSHandler(String username, String password ) {
@@ -93,7 +87,7 @@ public class OscarWSHandler {
 		setPassword( password );
 	}
 
-	public LoginResultTransfer2 login() {
+	private LoginResultTransfer2 login() {
 		return login( getUsername(), getPassword() );
 	}
 	
@@ -110,7 +104,7 @@ public class OscarWSHandler {
 				configureSSLConduit( loginWs );
 				return loginWs.login2(user, pass);
 			} catch (Exception e) {
-				logger.error("Unathorized access ", e);
+				logger.error("Unauthorized access ", e);
 			}		
 		}
 
@@ -118,7 +112,7 @@ public class OscarWSHandler {
 	}
 
 	public String saveHL7( String savedFilePath, String providerNumber) throws IOException {
-		Path path = Paths.get(savedFilePath);			
+		Path path = Paths.get(savedFilePath);
 		String fileContent = new String(Files.readAllBytes(path));
 		return saveHL7( path.getFileName().toString(), fileContent, providerNumber );
 	}
@@ -138,26 +132,31 @@ public class OscarWSHandler {
 	 */
 	@SuppressWarnings("rawtypes")
 	private void injectAuthenticationToken( LabUploadWs hL7LabUploadWs ){
-		LoginResultTransfer2 loginResultTransfer = login( getUsername(), getPassword() );
-		BindingProvider bindingProvider = (BindingProvider) hL7LabUploadWs;
-		List<Handler> handlerChain = bindingProvider.getBinding().getHandlerChain();
-		for( Handler handler : handlerChain ){		
-			if( handler instanceof OscarWSAuthHandler ) {
-				( ( OscarWSAuthHandler ) handler).setLoginResultTransfer( loginResultTransfer );
+		LoginResultTransfer2 loginResultTransfer = login();
+		if(loginResultTransfer != null)
+		{
+			BindingProvider bindingProvider = (BindingProvider) hL7LabUploadWs;
+			List<Handler> handlerChain = bindingProvider.getBinding().getHandlerChain();
+			for( Handler handler : handlerChain ){		
+				if( handler instanceof OscarWSAuthHandler ) {
+					( ( OscarWSAuthHandler ) handler).setLoginResultTransfer( loginResultTransfer );
+				}
 			}
 		}
 	}
 	
 	private void configureSSLConduit( Object port ) {
-		
+
 		HTTPConduit httpConduit = (HTTPConduit) ClientProxy.getClient(port).getConduit();	
 		TLSClientParameters tlsCP = new TLSClientParameters();
+		
 		try {
 			// configure with the Expedius custom Socket Factory.
 			tlsCP.setSSLSocketFactory( SSLSocket.getInstance().getSSlContext().getSocketFactory() );
 			tlsCP.setSslCacheTimeout(300000);
 			tlsCP.setDisableCNCheck(Boolean.TRUE);
-			httpConduit.setTlsClientParameters(tlsCP);			
+			httpConduit.setTlsClientParameters(tlsCP);
+			httpConduit.getClient().setContentType("multipart/form-data");
 		} catch (UnrecoverableKeyException e) {
 			logger.error("", e);
 		} catch (KeyManagementException e) {

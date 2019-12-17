@@ -35,9 +35,6 @@ public class ExpediusControllerHandler {
 
 	// hard coded to ensure local access.
 	private static final String ENDPOINT_ROOT = "http://127.0.0.1:";
-	private static final String DEFAULT_PROVIDER = "999999";
-	private static final String DEFAULT_SERVICE_NAME = "Expedius";
-	
 	public static final String IHA_CONFIGURATION_NAME = "IhaConfigurationBean";
 	public static final String EXCELLERIS_CONFIGURATION_NAME = "ExcellerisConfigurationBean";
 	public static final String CONTROLLER_NAME = "ControllerBean";
@@ -123,10 +120,6 @@ public class ExpediusControllerHandler {
 		ExpediusHL7LabHandler labHandler = null;
 		ExpediusConnect connection = null;
 		ExpediusW3CDocumentHandler documentHandler = null;
-
-		String providerNumber = null;
-		String serviceName = null;
-		String savePath = null;
 		String webservicePort = null;
 		String emrContextPath = null;
 
@@ -157,7 +150,7 @@ public class ExpediusControllerHandler {
 				getMessageHandler().setControllerBean(this.controllerBean);
 			}
 			
-			createExpediusLog(properties);
+			// createExpediusLog(properties);
 			
 			if(properties.containsKey("EMR_WEBSERVICE_PORT")) {
 				webservicePort = properties.getProperty("EMR_WEBSERVICE_PORT").trim(); 
@@ -187,30 +180,12 @@ public class ExpediusControllerHandler {
 			){
 				webserviceEndpoint = ENDPOINT_ROOT + webservicePort + emrContextPath + webserviceEndpoint;
 			} 
-			
 
-			if(properties.containsKey("SERVICE_NUMBER")) {
-				providerNumber = properties.getProperty("SERVICE_NUMBER").trim();
-			} else {
-				providerNumber = DEFAULT_PROVIDER;
-			}
-			
-			if(properties.containsKey("SERVICE_NAME")) {
-				serviceName = properties.getProperty("SERVICE_NAME").trim();
-			}else {
-				serviceName = DEFAULT_SERVICE_NAME;
-			}
-			
-			if(properties.containsKey("HL7_SAVE_PATH")) {
-				savePath = properties.getProperty("HL7_SAVE_PATH").trim();
-			}
-	
 		} else {
 			logger.error("Properties file not provided.");
 			return;
 		}
-		
-		
+				
 		// each lab distribution service has its own links and configuration options.
 		if(this.configurationBeans != null) {
 			setConfigurationBeans(this.configurationBeans);
@@ -237,16 +212,12 @@ public class ExpediusControllerHandler {
 		
 		// Lab handler parses the downloaded results and then connects to Oscar's web services.
 		// instantiated here so that incomplete webservice connections to Oscar can be caught prior 
-		// to going further.
-		
+		// to going further.		
 		OscarWSHandler webserviceHandler = new OscarWSHandler();
-		webserviceHandler.setUsername( properties.getProperty( "EMR_WS_USERNAME" ) );
-		webserviceHandler.setPassword( properties.getProperty( "EMR_WS_PASSWORD" ) );
+		webserviceHandler.setUsername( properties.getProperty( "EMR_WS_USERNAME" ).trim() );
+		webserviceHandler.setPassword( properties.getProperty( "EMR_WS_PASSWORD" ).trim() );
 		
-		labHandler = new ExpediusHL7LabHandler();
-		labHandler.setProviderNumber(providerNumber);
-		labHandler.setServiceName(serviceName);
-		labHandler.setSavePath(savePath);
+		labHandler = new ExpediusHL7LabHandler(properties);
 		labHandler.setWebserviceHandler(webserviceHandler);
 		
 		documentHandler = new ExpediusW3CDocumentHandler();
@@ -256,7 +227,7 @@ public class ExpediusControllerHandler {
 			logger.info("Setting Excelleris service ");	
 
 			ConfigurationBeanInterface excellerisConfigurationBean = getConfigurationBean( EXCELLERIS_CONFIGURATION_NAME );
-			AbstractConnectionController excelleris = new ExcellerisController(this.properties, excellerisConfigurationBean);
+			AbstractConnectionController excelleris = new ExcellerisController(excellerisConfigurationBean);
 			excelleris.setServiceName(excellerisConfigurationBean.getServiceName());
 			excelleris.setDocumentHandler(documentHandler);
 			excelleris.setConnection(connection);
@@ -266,14 +237,16 @@ public class ExpediusControllerHandler {
 		
 		if( isIhapoion() ) {
 			logger.info("Setting IHAPOI service ");
-			// in case it was forgotten during the first run - the certificate status
-			// needs to be changed to true.
+			/*
+			 *  in case it was forgotten during the first run - the certificate status
+			 *  needs to be changed to true.
+			 */
 			ConfigurationBeanInterface ihaConfiguration = getConfigurationBean( IHA_CONFIGURATION_NAME );
 			if(! ihaConfiguration.isCertificateInstalled()) {
 				ihaConfiguration.setCertificateInstalled(Boolean.TRUE);
 			}
 			
-			AbstractConnectionController ihapoi = new IhaController(this.properties, ihaConfiguration);
+			AbstractConnectionController ihapoi = new IhaController(ihaConfiguration);
 			ihapoi.setServiceName(ihaConfiguration.getServiceName());
 			ihapoi.setDocumentHandler(documentHandler);
 			ihapoi.setConnection(connection);
@@ -302,6 +275,7 @@ public class ExpediusControllerHandler {
 	 * Stop the timer
 	 * @param pollTimer
 	 */
+	@SuppressWarnings("rawtypes")
 	public void stop() {
 		if(PollTimer.isRunning()) {	
 			List<Runnable> stopStatus = PollTimer.stop();
@@ -634,6 +608,7 @@ public class ExpediusControllerHandler {
 		return status;
 	}
 	
+	@SuppressWarnings("rawtypes")
 	private boolean persistBeans(ArrayList<Object> beans) {
 		boolean status = Boolean.TRUE;
 		

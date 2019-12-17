@@ -7,6 +7,7 @@ import java.net.SocketTimeoutException;
 import javax.net.ssl.*;
 import javax.xml.parsers.ParserConfigurationException;
 
+import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 
 import com.colcamex.www.bean.ConfigurationBeanInterface;
@@ -14,7 +15,6 @@ import com.colcamex.www.handler.ExpediusMessageHandler;
 import com.colcamex.www.handler.ExpediusW3CDocumentHandler;
 import com.colcamex.www.http.ExpediusConnect;
 import com.colcamex.www.http.AbstractConnectionController;
-import com.colcamex.www.util.ExpediusProperties;
 
 
 /**
@@ -28,7 +28,6 @@ import com.colcamex.www.util.ExpediusProperties;
 public class ExcellerisController extends AbstractConnectionController {
 
 	private static final String DEFAULT_EXCELLERIS_LAB_TYPE = "EXCELLERIS";
-	//private static final String NODE_AUTHENTICATED = "authentication";
 	private static final String ACK_RETURN_CODE = "0";
 	private static final String RESPONSE_ACCESSGRANTED = "accessgranted";
 	private static final String NODE_HL7MESSAGES = "hl7messages";
@@ -36,12 +35,11 @@ public class ExcellerisController extends AbstractConnectionController {
 	private static final String NODE_MESSAGEFORMAT = "MessageFormat";
 	private static final String NODE_VERSION = "Version";
 	private static final String NODE_RETURNCODE = "ReturnCode";
-	private static final String EXCELLERIS_LAB_TYPE = "EXCELLERIS";
-	
+
 	private String labType;
 
-	public ExcellerisController(ExpediusProperties properties, ConfigurationBeanInterface configurationBean) {		
-		super(properties, configurationBean);
+	public ExcellerisController(ConfigurationBeanInterface configurationBean) {		
+		super(configurationBean);
 		
 		if(super.properties.containsKey("EXCELLERIS_LAB_TYPE")) {
 			this.labType = properties.getProperty("EXCELLERIS_LAB_TYPE").trim();
@@ -52,7 +50,7 @@ public class ExcellerisController extends AbstractConnectionController {
 	
 	@Override
 	public void run() {
-		_init();
+
 		Thread thread = Thread.currentThread();
 		thread.setName("ExcellerisController"+ "[" + thread.getId() + "]");
 		
@@ -62,9 +60,6 @@ public class ExcellerisController extends AbstractConnectionController {
 		String messageCount = null;
 		String messageFormat = null;
 		String messageVersion = null;
-		//NamedNodeMap nodemap = null;
-		//Document response = null;	
-		//Node code = null;
 		String ackReturnCode = null;
 		setLastFileCount(0);
 		
@@ -80,74 +75,44 @@ public class ExcellerisController extends AbstractConnectionController {
 				handleError("Expedius has failed to fetch lab files. Contact support. ", e, ERROR, true);
 			} catch (ParserConfigurationException e) {				
 				handleError("There was a problem with parsing the server response while fetching lab files.", e, ERROR, true);
-			}  finally {
-				// for maintenance.
-				close();									
-			}
-				
+			}  
 
 			// save data
-			if( getConnection().getResponseCode() == HttpsURLConnection.HTTP_OK ) {
+			if( getConnection().getResponseCode() == HttpsURLConnection.HTTP_OK  && getConnection().hasResponse()) {
+
+				rootTag = getDocumentHandler().getRoot();
+				
+				logger.info("HL7 root tag " + rootTag);
+				
+				if( NODE_HL7MESSAGES.equalsIgnoreCase(rootTag.getNodeName()) ) {
+					messageCount = getDocumentHandler().getNodeAttributeValue(NODE_MESSAGECOUNT, rootTag);
+					messageFormat = getDocumentHandler().getNodeAttributeValue(NODE_MESSAGEFORMAT, rootTag);
+					messageVersion = getDocumentHandler().getNodeAttributeValue(NODE_VERSION, rootTag);
 					
-				if(getConnection().hasResponse()) {
-					
-					rootTag = getDocumentHandler().getRoot();
-					
-					System.out.println("Root Tag: " + rootTag);
-					
-					if( NODE_HL7MESSAGES.equalsIgnoreCase(rootTag.getNodeName()) ) {
-						messageCount = getDocumentHandler().getNodeAttributeValue(NODE_MESSAGECOUNT, rootTag);
-						messageFormat = getDocumentHandler().getNodeAttributeValue(NODE_MESSAGEFORMAT, rootTag);
-						messageVersion = getDocumentHandler().getNodeAttributeValue(NODE_VERSION, rootTag);
-						
-						logger.info(NODE_MESSAGECOUNT + ": " + messageCount);
-						logger.info(NODE_MESSAGEFORMAT + ": " + messageFormat);
-						logger.info(NODE_VERSION + ": " + messageVersion);
-					}
-					
+					logger.info(NODE_MESSAGECOUNT + ": " + messageCount);
+					logger.info(NODE_MESSAGEFORMAT + ": " + messageFormat);
+					logger.info(NODE_VERSION + ": " + messageVersion);
+				}
+
+				/*
+				 * First processResults: save the W3C Document to the filesystem 
+				 * If success then parseAndPersist: fetch the Oscar EMR endpoint to push the 
+				 * lab results to Oscar.
+				 */
+				if(processResults(getDocumentHandler().getDocument(), labType)) {
+					parseAndPersist();
 				}
 				
-				if( getLastFileCount() > 0 ) {
-					getLabHandler().setLabType(EXCELLERIS_LAB_TYPE);
-					super.processResults(getDocumentHandler().getDocument(), labType);
-				}
 			}
-						
-//						response = getConnection().getResponse();
-//						rootTag = response.getDocumentElement();
-//						
-//						if(rootTag.getNodeName().equalsIgnoreCase(NODE_HL7MESSAGES)) {
-//							
-//							nodemap = rootTag.getAttributes();
-//							
-//							if(nodemap.getLength() > 0) {
-//								
-//								messageCount = nodemap.getNamedItem(NODE_MESSAGECOUNT).getNodeValue();
-//								messageFormat = nodemap.getNamedItem(NODE_MESSAGEFORMAT).getNodeValue();
-//								messageVersion = nodemap.getNamedItem(NODE_VERSION).getNodeValue();
-//								
-//								logger.info(NODE_MESSAGECOUNT + ": " + messageCount);
-//								logger.info(NODE_MESSAGEFORMAT + ": " + messageFormat);
-//								logger.info(NODE_VERSION + ": " + messageVersion);
-//								
-//								if(messageCount != null) {
-//									setLastFileCount(Integer.parseInt(messageCount));									
-//									logger.info( messageCount + " Excelleris labs downloaded");
-//								}
-//
-//							}
-//						
-//						} else {
-//							logger.error("Error: No, or incorrect, content from server. Root Tag: "+rootTag.toString());
-//						}
-//					}
-					
-					
-							
-			//}
 
 			// CAUTION - disable acknowledge for testing. You will loose all your test labs.
 			if( (ACKNOWLEDGE_DOWNLOADS.equalsIgnoreCase("true")) && (getLabHandler().getResponseCode() == HttpsURLConnection.HTTP_OK) ) {
+				
+				/*
+				 *  if the lab handler succeeds then all the labs can be acknowledged.
+				 *  acknowledgeIds = documentHandler.getMessageIdList();
+				 */
+
 				try {
 					getConnection().acknowledge(ACKNOWLEDGE);
 				} catch (SocketTimeoutException e) {				
@@ -169,46 +134,14 @@ public class ExcellerisController extends AbstractConnectionController {
 								null, DISMISSABLE_ERROR, true);
 					}
 				}
+			} else {
+				logger.info("Acknowledge not enabled. This lab file will be downloaded again.");
 			}
-//						
-//							rootTag = getConnection().getResponse().getDocumentElement();		
-//							nodemap = rootTag.getAttributes();
-//							
-//							if(nodemap.getLength() > 0) {
-//								
-//								code = nodemap.getNamedItem(NODE_RETURNCODE);
-//								
-//								if(Integer.parseInt(code.getNodeValue().toString()) == 0) {								
-//									
-//								} else {								
-//									logger.error(rootTag.toString() + " Invalid response code");								
-//								}
-//								
-//							} else {							
-//								
-//							}
-//						}
-//						
-//					} else {
-//						
-//					}
-//					
-//				} else {
-//					logger.info("Acknowledge not enabled. This lab file will be downloaded again.");
-//				}
-				
+							
 			// catch all server response codes.
 			processServerResponse(getConnection().getResponseCode());
-															
-//			} catch (SocketTimeoutException e) {				
-//				handleError("Connection timeout occured while attempting to fetch lab files. Check internet connectivity. ", e, ERROR, true);
-//			} catch (IOException e) {				
-//				handleError("Expedius has failed to fetch lab files. Contact support. ", e, ERROR, true);
-//			} catch (ParserConfigurationException e) {				
-//				handleError("There was a problem with parsing the server response while fetching lab files.", e, ERROR, true);
-//			}  finally {
-//				close();									
-//			}		
+			
+			close();
 		}
 	}	
 	
@@ -219,10 +152,7 @@ public class ExcellerisController extends AbstractConnectionController {
 	protected boolean hostLogin() {
 
 		boolean success = Boolean.FALSE;
-		//Document response = null;
-		//String method = null;
-		String result = null;
-		//Node rootTag = null;		
+		String result = null;	
 		SSLSocketFactory socketFactory = super.getSSLSocketFactory();
 		
 		if(socketFactory != null) {
@@ -240,8 +170,10 @@ public class ExcellerisController extends AbstractConnectionController {
 				handleError("Server is not recognized or cannot be reached during handshake. Check connection links or if server is accessable. ", e2, ERROR, false);			
 			}
 						
-			// authenticate - verify login information and open portal.
-			// but only after a handshake success.
+			/*
+			 *  authenticate - verify login information and open portal.
+			 *  but only after a handshake success.
+			 */
 			if(getConnection().getResponseCode() == HttpsURLConnection.HTTP_OK) {
 				
 				try {
@@ -259,21 +191,14 @@ public class ExcellerisController extends AbstractConnectionController {
 				if(getConnection().hasResponse()) {
 					
 					result = getDocumentHandler().getRoot().getFirstChild().getNodeValue();
-					
-//					response = getConnection().getResponse();					
-//					rootTag = response.getDocumentElement();
-//					method = rootTag.getNodeName();
-//					result = rootTag.getFirstChild().getNodeValue();
-//					
+
 					logger.info("Excelleris login response: " + result);
 									
 					if(result.equalsIgnoreCase(RESPONSE_ACCESSGRANTED)) {
 						success = Boolean.TRUE;
-						getConnection().setLoggedIn(true);
 					} else {
 						logger.info("Failed to log into Excelleris.");
-					}
-					
+					}					
 				}								
 			}
 			
@@ -289,6 +214,11 @@ public class ExcellerisController extends AbstractConnectionController {
 
 	public boolean start() {		
 		return super.start(DOWNLOAD_MODE);
+	}
+	
+	@Override
+	protected boolean processResults(Document results, String labType) {
+		return super.processResults(results, labType);
 	}
 	
 	@Override
@@ -321,21 +251,5 @@ public class ExcellerisController extends AbstractConnectionController {
 	public void setDocumentHandler(ExpediusW3CDocumentHandler documentHandler) {
 		this.documentHandler = documentHandler;			
 	}
-
 		   
 }
-
-
-
-/*	
-System.out.println("WRITING CONTENTS");
-
-StringWriter writer = new StringWriter();
-try {
-	IOUtils.copy(in, writer, "UTF-8");
-} catch (IOException e) {
-	// TODO Auto-generated catch block
-	e.printStackTrace();
-}
-System.out.println(writer.toString());
-*/

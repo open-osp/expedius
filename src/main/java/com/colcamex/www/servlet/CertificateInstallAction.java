@@ -169,8 +169,6 @@ public class CertificateInstallAction extends HttpServlet {
         	logger.error("Exception: ",ex);
         	
         	message = "File upload error: " + ex.getMessage();
-        	
-            //request.setAttribute("message", "File upload error: " + ex.getMessage());
         }
          
         if((storeFile != null)&&(Encryption.testPassword(certPass, certPassConfirm))) {
@@ -182,17 +180,13 @@ public class CertificateInstallAction extends HttpServlet {
 	        	
 	        	configurationBean.setKeyPath(new File(properties.getProperty("KEYSTORE_URL")));
 	        	logger.debug("Keystore saved");
-	        	
-	        	// request.setAttribute("message", "Certificate installed successfully!");	
-	        	
+
 	        } else {
 	        	
 	        	configurationBean.setCertificateInstalled(false);
 	        	
 	        	message = keyCutter.getError();
-	        	
-	        	//request.setAttribute("message", keyCutter.getError());
-	        	
+	
 	        }
 	        
 
@@ -210,8 +204,6 @@ public class CertificateInstallAction extends HttpServlet {
         // save bean.
         controllerHandler.persistBean();
 
-        //forward(request, response, DEFAULT_RESPONSE);
-        
         request.setAttribute("message", message);
         
         RequestDispatcher dispatch = request.getRequestDispatcher("configuration");

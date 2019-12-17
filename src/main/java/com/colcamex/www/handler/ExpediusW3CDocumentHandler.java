@@ -1,10 +1,8 @@
 package com.colcamex.www.handler;
 
-import java.io.BufferedReader;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.util.logging.Logger;
 
 import javax.xml.parsers.DocumentBuilder;
@@ -15,6 +13,7 @@ import org.w3c.dom.Document;
 import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
+import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 
 /**
@@ -41,24 +40,10 @@ public class ExpediusW3CDocumentHandler {
 	private Node root;
 	private NodeList children;
 
-	
 	public ExpediusW3CDocumentHandler() {
 		super();
 		DocumentBuilderFactory documentBuilderFactory =  DocumentBuilderFactory.newInstance();	
-		
-		try {			
-			setDocumentBuilder( documentBuilderFactory.newDocumentBuilder() );
-			// setDocument( getDocumentBuilder().newDocument() );
-		} catch (ParserConfigurationException e1) {
-			logger.severe("Expedius document manager failed to instantiate document builder." + e1);
-		}
-	}
-	
-	/**
-	 * Instantiate with a custom document builder factory.
-	 * @param documentBuilderFactory
-	 */
-	public ExpediusW3CDocumentHandler(DocumentBuilderFactory documentBuilderFactory) { 
+
 		try {			
 			setDocumentBuilder( documentBuilderFactory.newDocumentBuilder() );
 		} catch (ParserConfigurationException e1) {
@@ -66,28 +51,28 @@ public class ExpediusW3CDocumentHandler {
 		}
 	}
 
-	public synchronized DocumentBuilder getDocumentBuilder() {
+	public DocumentBuilder getDocumentBuilder() {
 		return documentBuilder;
 	}
 
-	public synchronized void setDocumentBuilder(DocumentBuilder documentBuilder) {
+	public void setDocumentBuilder(DocumentBuilder documentBuilder) {
 		this.documentBuilder = documentBuilder;
 	}
 
-	public synchronized Document getDocument() {
+	public Document getDocument() {
 		return document;
 	}
 
-	public synchronized void setDocument(Document document) {
+	public void setDocument(Document document) {
 		this.document = document;
 	}
 
-	public synchronized Node getRoot() {
+	public Node getRoot() {
 		this.root = getDocument().getDocumentElement();
 		return this.root;
 	}
 
-	public synchronized NodeList getRootChildren() {
+	public NodeList getRootChildren() {
 		getRoot();
 		if(this.root.hasChildNodes()) {
 			this.children = getRoot().getChildNodes();
@@ -95,7 +80,7 @@ public class ExpediusW3CDocumentHandler {
 		return this.children;
 	}
 
-	public synchronized int getMessageCount() {
+	public int getMessageCount() {
 		
 		// try the root tag first.
 		NodeList nodeList = null;
@@ -115,26 +100,38 @@ public class ExpediusW3CDocumentHandler {
 		return 0;
 	}
 	
-	public synchronized NodeList getMessageNodes() {
+	public NodeList getMessageNodes() {
 		return getNodes(HL7_MESSAGE_TAG);
 	}
 	
-	public synchronized String[] getMessageIdList() {
+	public String[] getMessageIdList() {
 		return this.getAttributeValueArray(ATTRIBUTE_LAB_ID, getRootChildren());
 	}
 
-	public synchronized String getHL7Version() {
+	public String getHL7Version() {
 		return getFirstNodeAttributeValue(ATTRIBUTE_HL7_VERSION);
 	}
 	
-	public synchronized String getHL7Format() {
+	public String getHL7Format() {
 		return getFirstNodeAttributeValue(ATTRIBUTE_LAB_FORMAT);
 	}
 	
-	public synchronized String getMessageFormat() {
+	public String getMessageFormat() {
 		return getFirstNodeAttributeValue(ATTRIBUTE_MESSAGE_FORMAT);
 	}
-	
+		
+	public Document parse(InputSource inputSource) throws SAXException, IOException {
+
+		if(this.document != null) {
+			this.document = null;
+		}
+
+		document = getDocumentBuilder().parse(inputSource);
+		document.normalize();
+		getDocumentBuilder().reset();
+		return this.document;
+	}
+
 	/**
 	 * Parse and set a new Document object from an InputStream.
 	 * @param is
@@ -145,36 +142,21 @@ public class ExpediusW3CDocumentHandler {
 	public Document parse(InputStream is) throws SAXException, IOException {
 
 		if(this.document != null) {
-			document = null;
+			this.document = null;
 		}
-		readStream(is);
-		setDocument( getDocumentBuilder().parse(is) );
+
+		document = getDocumentBuilder().parse(is);
+		document.normalize();
 		getDocumentBuilder().reset();
-		return getDocument();
-	}
-	
-	/**
-	 * Overloaded parse from file path.
-	 * @param documentPath
-	 * @return
-	 * @throws SAXException
-	 * @throws IOException
-	 */
-	public Document parse(String documentPath) throws SAXException, IOException {
-
-		InputStream is = null;
-		if(documentPath != null) {
-			is = this.getClass().getClassLoader().getResourceAsStream(documentPath);
-		}
-		return parse(is);
+		return this.document;
 	}
 
-	public synchronized Document createNewDocument(String xmlFragment) throws SAXException, IOException {
+	public Document createNewDocument(String xmlFragment) throws SAXException, IOException {
 		Node node = documentBuilder.parse(new ByteArrayInputStream(xmlFragment.getBytes())).getDocumentElement();
 		return createNewDocument(node);
 	}
 	
-	public synchronized Document createNewDocument(Node node) {
+	public Document createNewDocument(Node node) {
 
 		this.newDocument = documentBuilder.newDocument();
 
@@ -184,15 +166,15 @@ public class ExpediusW3CDocumentHandler {
 		return this.newDocument;
 	}
 
-	public synchronized Document getNewDocument() {
+	public Document getNewDocument() {
 		return this.newDocument;
 	}
 	
-	public synchronized String getRootAttributeValue(String attributeName) {
+	public String getRootAttributeValue(String attributeName) {
 		return getNodeAttributeValue(attributeName, getRoot());
 	}
 	
-	public synchronized String getFirstNodeAttributeValue(String attributeName) {
+	public String getFirstNodeAttributeValue(String attributeName) {
 
 		// first try the root
 		String nodeValue = getRootAttributeValue(attributeName);
@@ -204,7 +186,7 @@ public class ExpediusW3CDocumentHandler {
 		return nodeValue;
 	}
 	
-	public synchronized String getFirstNodeAttributeValue(String attributeName, NodeList nodeList) {
+	public String getFirstNodeAttributeValue(String attributeName, NodeList nodeList) {
 		
 		String nodeName = null;
 		Node node = null;
@@ -222,7 +204,7 @@ public class ExpediusW3CDocumentHandler {
 		return node.getNodeValue();
 	}
 	
-	public synchronized String getNodeAttributeValue(String attributeName, Node node) {
+	public String getNodeAttributeValue(String attributeName, Node node) {
 		NamedNodeMap attributes = null;
 		Node attribute = null;
 		String nodeName = null;
@@ -244,7 +226,7 @@ public class ExpediusW3CDocumentHandler {
 	    return null;
 	}
 	
-	public synchronized NodeList getNodes(String elementName) {
+	public NodeList getNodes(String elementName) {
 		// if only XML developers would use proper naming convention...
 		String childName = null;
 		Node child = null;
@@ -273,11 +255,11 @@ public class ExpediusW3CDocumentHandler {
 		return null;
 	}
 	
-	public synchronized String[] getAttributeValueArray(String attributeName, String tagName) {
+	public String[] getAttributeValueArray(String attributeName, String tagName) {
 		return getAttributeValueArray(attributeName, getNodes(tagName));
 	}
 		
-	public synchronized String[] getAttributeValueArray(String attributeName, NodeList nodes) {
+	public String[] getAttributeValueArray(String attributeName, NodeList nodes) {
 		int listSize = nodes.getLength();
 		String[] attributes = new String[listSize];
 		Node node = null;
@@ -302,41 +284,6 @@ public class ExpediusW3CDocumentHandler {
 		}
 		
 		return attributes;
-	}
-	
-	private void readStream(InputStream is) {
-		
-        BufferedReader br = null;
-         
-        try {
-
-            br = new BufferedReader(new InputStreamReader(is));
-             
-            String line = null;
-             
-            while ((line = br.readLine()) != null) {
-                if (line.equalsIgnoreCase("quit")) {
-                    break;
-                }
-                System.out.println("Line entered : " + line);
-            }
-             
-        }
-        catch (IOException ioe) {
-            System.out.println("Exception while reading input " + ioe);
-        }
-        finally {
-            // close the streams using close method
-            try {
-                if (br != null) {
-                    br.close();
-                }
-            }
-            catch (IOException ioe) {
-                System.out.println("Error while closing stream: " + ioe);
-            }
- 
-        }
 	}
 
 }

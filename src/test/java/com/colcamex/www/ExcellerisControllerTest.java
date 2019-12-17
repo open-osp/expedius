@@ -1,6 +1,5 @@
 package com.colcamex.www;
 
-import static org.junit.Assert.*;
 
 import org.junit.After;
 import org.junit.AfterClass;
@@ -9,6 +8,7 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 
 import com.colcamex.www.bean.ConfigurationBeanInterface;
+import com.colcamex.www.excelleris.ExcellerisConfigurationBean;
 import com.colcamex.www.excelleris.ExcellerisController;
 import com.colcamex.www.handler.ExpediusHL7LabHandler;
 import com.colcamex.www.handler.ExpediusMessageHandler;
@@ -21,27 +21,35 @@ import com.colcamex.www.util.ExpediusProperties;
 public class ExcellerisControllerTest {
 
 	private static AbstractConnectionController excellerisController;
-	private static ExpediusProperties properties;
-	private static ConfigurationBeanInterface configBean;
-	
+
 	@BeforeClass
 	public static void setUpBeforeClass() throws Exception {
 		System.out.println("SETUP");
 		
-		properties = ExpediusProperties.getProperties("/var/lib/expedius/expedius.properties");
+		ExpediusProperties.getProperties();
+		
+		ExcellerisConfigurationBean configurationBean = new ExcellerisConfigurationBean();
+		configurationBean.initialize(
+				ExpediusProperties.getProperties().getProperty("EXCELLERIS_URI"),	
+				ExpediusProperties.getProperties().getProperty("REQUEST_NEW"),
+				ExpediusProperties.getProperties().getProperty("LOGIN"),
+				ExpediusProperties.getProperties().getProperty("LOGOUT"),
+				ExpediusProperties.getProperties().getProperty("ACK_POSITIVE")
+		);	
+		configurationBean.setServiceName("excelleris");
+		BeanRetrieval.setBean(configurationBean);
+		
 		
 		// using Excelleris for the test.
-		if(properties != null) {
-			ExpediusW3CDocumentHandler documentHandler = new ExpediusW3CDocumentHandler();
-			ExpediusConnect connection = ExpediusConnect.getInstance(documentHandler);
-			configBean = (ConfigurationBeanInterface) BeanRetrieval.getBean("ExcellerisConfigurationBean");
-			excellerisController = new ExcellerisController(properties, configBean);
-			excellerisController.setLabHandler(new ExpediusHL7LabHandler(properties));
-			excellerisController.setDocumentHandler(documentHandler);
-			excellerisController.setConnection(connection);
-			excellerisController.setMessageHandler(new ExpediusMessageHandler());
-			excellerisController.setServiceName("IHAPOI");
-		}		
+		ExpediusW3CDocumentHandler documentHandler = new ExpediusW3CDocumentHandler();
+		ExpediusConnect connection = ExpediusConnect.getInstance(documentHandler);
+
+		excellerisController = new ExcellerisController((ConfigurationBeanInterface)BeanRetrieval.getBean("ExcellerisConfigurationBean"));
+		excellerisController.setLabHandler(new ExpediusHL7LabHandler(ExpediusProperties.getProperties()));
+		excellerisController.setDocumentHandler(documentHandler);
+		excellerisController.setConnection(connection);
+		excellerisController.setMessageHandler(new ExpediusMessageHandler());
+		excellerisController.setServiceName("EXCELLERIS");	
 	}
 
 	@AfterClass
@@ -61,8 +69,7 @@ public class ExcellerisControllerTest {
 		System.out.println("Test run method.");
 		
 		excellerisController.run();
-		
-		fail("Not yet implemented");
+
 	}
 
 }

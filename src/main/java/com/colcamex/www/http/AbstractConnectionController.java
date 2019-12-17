@@ -84,20 +84,13 @@ public abstract class AbstractConnectionController implements Runnable {
     public abstract void setMessageHandler(ExpediusMessageHandler messageHandler);
     public abstract void setDocumentHandler(ExpediusW3CDocumentHandler documentHandler);
       
-    public AbstractConnectionController(ExpediusProperties properties, ConfigurationBeanInterface configurationBean) {
+    public AbstractConnectionController(ConfigurationBeanInterface configurationBean) {
     	
-    	// contains dynamic properties
-    	if(configurationBean != null) {
-    		setConfigurationBean(configurationBean);
-    	}
+    	properties = ExpediusProperties.getProperties();
     	
     	// contains static properties
     	if(properties != null) {
-    		
-// TODO Use the default singleton init. This will avoid needing the properties here.
-    		
-    		this.properties = properties;
-    		
+
 			TRUSTSTORE_URL = properties.getProperty("TRUSTSTORE_URL").trim();
 			STORE_TYPE = properties.getProperty("STORE_TYPE").trim();
 			STORE_PASS = properties.getProperty("STORE_PASS").trim();
@@ -113,16 +106,10 @@ public abstract class AbstractConnectionController implements Runnable {
 					KEYSTORE_URL) );
         } 
     	
-    	_init();
-    }
-    
-    /**
-     * Initialize connection parameters from configuration bean.
-     */
-	protected void _init() {
-		
-		if(configurationBean != null) {
-			
+    	if(configurationBean != null) {
+    		
+    		setConfigurationBean(configurationBean);
+    		
 			USER = configurationBean.getUserName();
 			PASS = configurationBean.getPassword();		
 			URI = configurationBean.getServicePath();
@@ -144,11 +131,12 @@ public abstract class AbstractConnectionController implements Runnable {
 			}	    	
 
 		} else {
-			logger.error("Missing configuration information.");
+			logger.warn("Missing configuration information.");
 			return;
 		}
-	}
-	
+
+    }
+
     public void setConfigurationBean(ConfigurationBeanInterface configurationBean) {
 		logger.info("Setting configuration info.");
 		this.configurationBean = configurationBean;		
@@ -348,82 +336,70 @@ public abstract class AbstractConnectionController implements Runnable {
 
 	}
 	
-	protected void processResults() {
-		processResults(getDocumentHandler().getDocument(), getLabType()); 
+	protected boolean processResults() {
+		return processResults(getDocumentHandler().getDocument(), getLabType()); 
 	}
-	
-	protected void processResults(String labType) {
-		setLabType(labType);
-		processResults(getDocumentHandler().getDocument(), getLabType()); 
-	}
-	
+
 	/**
 	 * Do all actions to get HL7 files into Oscar.
 	 * This method changes the HTTP status to ExpediusConnectionController.HTTP_ERROR_THROWN [-1] 
 	 * so that 
 	 * @param results
 	 */
-	protected void processResults(Document results, String labType) {
+	protected boolean processResults(Document results, String labType) {
 
 		setLastFileCount( getDocumentHandler().getMessageCount() );
 		setLabType(labType);
 		
 		logger.info( getLastFileCount()  + " " + getLabType() + " lab files found." );
-		
-		String savePath = null;
+
+		boolean success = Boolean.FALSE;
 		
 		// exit if no lab files were downloaded.
 		if ( getLastFileCount() > 0 ) {
 
 			if( getLabHandler() != null ) {
 				
-				logger.info("Saving and parsing lab files.");
+				logger.info("Saving and parsing " + getLastFileCount() + " lab files.");
 				
 				// set the local file system save path for the hl7 file.
 				getLabHandler().setFileName(getConfigurationBean().getServiceName() + "." + new SimpleDateFormat("yyyyMMddHHmmss").format(new Date()));
-				savePath = getLabHandler().getSavePath();
-				savePath = savePath + getConfigurationBean().getServiceName(); 
-				
+
 				// point lab results to the handler.
 				getLabHandler().setHl7labs(results);
+				getLabHandler().setLabType(labType);
 				
-				// save the down loaded lab file
-				
-				// TODO need to feed in the lab type that is being fed. Endpoint for IHA labs not available yet.
-				try {					 
-					getLabHandler().saveFile(savePath); 	
+				// save the results file
+				try {		
+					success = getLabHandler().saveFile(); 	
 				} catch (IOException e) {
 					handleError("Expedius has failed to save downloaded lab files. They will not be aknowledged. Contact support. ", e, ERROR, true);
 				} catch (TransformerException e) {								
 					handleError("There was a problem parsing the lab files into XML. They have not been saved and will not be aknowledged. ", e, ERROR, true);				
 				} finally {
 					if( getLabHandler().getResponseCode() == ExpediusHL7LabHandler.OK ) {	
-						logger.info(getServiceName() + " lab files have been saved to local file system: " + savePath);			
+						logger.info(getServiceName() + " lab files have been saved to local file system: " + getLabHandler().getSavePath() + getLabHandler().getFileName());			
 					}
 				}
-						
-				// parse and persist HL7 file to Oscars database.
-				parseAndPersist();
-				
+
 			} else {
 				handleError("A software error prevented the lab file from being saved ", null, DISMISSABLE_ERROR, true);
 			}
 			
 		} 
+		
+		return success;
 	}
 	
-	public void parseAndPersist(String labType) {
+	protected void parseAndPersist(String labType) {
 		setLabType(labType);
 		parseAndPersist();
 	}
 	
-	private void parseAndPersist() {
+	protected void parseAndPersist() {
 		
 		if( getLabHandler().getResponseCode() == HttpsURLConnection.HTTP_OK ) {
-			
-			// tell the lab handler what type of labs to send to Oscar.
-			getLabHandler().setLabType( getLabType() );
-			
+
 			try {
 				getLabHandler().saveHL7();				
 			} catch (FileNotFoundException e) {
@@ -454,7 +430,7 @@ public abstract class AbstractConnectionController implements Runnable {
 	protected void handleError(String message, Exception exception, int errorLevel, boolean sendEmail) {
 	
 		String fileLocation = getLabHandler().getSavePath();
-		Integer oscarFileId = getLabHandler().getFileId();
+
 		String fileName = getLabHandler().getFileName();
 		String serviceName = getServiceName();
 		
@@ -475,10 +451,6 @@ public abstract class AbstractConnectionController implements Runnable {
 		if(fileName != null) {
 			finalMessage.append(" File location: " + fileLocation);
 			finalMessage.append(fileName);
-		}
-		
-		if(oscarFileId > 0) {
-			finalMessage.append(" Oscar file id: " + oscarFileId);
 		}
 
 		logger.log(Level.ERROR, finalMessage.toString(), exception);

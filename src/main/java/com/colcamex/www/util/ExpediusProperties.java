@@ -10,22 +10,19 @@ public class ExpediusProperties extends Properties {
 	private static final long serialVersionUID = 1L;
 	
 	public static final String PROPERTIES_FILE_NAME = "ExpediusProperties";
-	public static final String DEFAULT_PATH = "/var/lib/expedius/expedius.properties";
+//	public static final String DEFAULT_PATH = "";
 	
 	private static ExpediusProperties instance = null;	
-	private FileInputStream inputStream;
 
 	protected ExpediusProperties(String propertiesPath) {
-		super();		
+		super();
 		
-		try {
-			
-			if( propertiesPath == null ) {
-				propertiesPath = DEFAULT_PATH;
-			}
+		if( propertiesPath == null ) {
+			propertiesPath = getClass().getClassLoader().getResource("expedius.properties").getPath();
+		}
+		
+		try (FileInputStream inputStream = new FileInputStream(propertiesPath)) {
 
-			inputStream = new FileInputStream(propertiesPath);
-						
 			if(inputStream != null) {			
 				load(inputStream);
 				inputStream.close();				
@@ -36,14 +33,7 @@ public class ExpediusProperties extends Properties {
 		} catch (IOException e) {			
 			e.printStackTrace();			
 		} finally {
-			// paranoid stream closing
-			if(inputStream != null) {
-				try {
-					inputStream.close();
-				} catch (IOException e) {
-					e.printStackTrace();
-				}
-			}
+			
 		}
 	}
 	
@@ -54,8 +44,12 @@ public class ExpediusProperties extends Properties {
 	 * properties file path. 
 	 * @return
 	 */
-	public static ExpediusProperties getInstance() {
-		return ExpediusProperties.getProperties( null );
+	public static ExpediusProperties getProperties() {
+		if(instance == null)
+		{
+			instance = new ExpediusProperties(null);
+		}
+		return instance;
 	}
 	
 	/**
@@ -64,11 +58,8 @@ public class ExpediusProperties extends Properties {
 	 * parameters will be provided. 
 	 * @param propertiesPath
 	 */
-	public static ExpediusProperties getProperties(String propertiesPath) {
-		
-		if(instance == null) {
-			instance = new ExpediusProperties(propertiesPath);
-		}
+	public static ExpediusProperties getProperties(String propertiesPath) {		
+		instance = new ExpediusProperties(propertiesPath);
 		return instance;
 	}
 	

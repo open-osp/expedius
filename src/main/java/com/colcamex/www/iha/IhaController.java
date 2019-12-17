@@ -10,7 +10,7 @@ import com.colcamex.www.handler.ExpediusMessageHandler;
 import com.colcamex.www.handler.ExpediusW3CDocumentHandler;
 import com.colcamex.www.http.ExpediusConnect;
 import com.colcamex.www.http.AbstractConnectionController;
-import com.colcamex.www.util.ExpediusProperties;
+
 
 public class IhaController extends AbstractConnectionController {
 	
@@ -19,8 +19,8 @@ public class IhaController extends AbstractConnectionController {
 	// Each lab report contains attributes: format="HL7" msgId="LAB4315059.hl7" version="2.3"
 	private String labType;
 
-	public IhaController(ExpediusProperties properties, ConfigurationBeanInterface configurationBean) {
-		super(properties, configurationBean);
+	public IhaController(ConfigurationBeanInterface configurationBean) {
+		super(configurationBean);
 		
 		if(super.properties.containsKey("IHA_POI_LAB_TYPE")) {
 			this.labType = properties.getProperty("IHA_POI_LAB_TYPE").trim();
@@ -57,10 +57,11 @@ public class IhaController extends AbstractConnectionController {
 					handleError("Expedius has failed to fetch lab files. Contact support. ", e, ERROR, true);
 				} catch (ParserConfigurationException e) {				
 					handleError("There was a problem with parsing the server response while fetching lab files.", e, ERROR, true);
-				}  finally {
-					// for maintenance.
-					close();									
-				}
+				}  
+//				finally {
+//					// for maintenance.
+//					close();									
+//				}
 			}
 			
 			if( getConnection().getResponseCode() == HttpsURLConnection.HTTP_OK ) {
