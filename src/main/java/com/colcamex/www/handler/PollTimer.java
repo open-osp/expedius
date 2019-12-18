@@ -33,7 +33,7 @@ public class PollTimer {
 	private static final Integer INITIAL_DELAY = (60*30); // download after 10 minutes of start.
 	private static final int TIME_CHECK_INTERVAL = 60; //seconds
 	
-	private static Logger logger = Logger.getLogger("PollTimer");
+	private static Logger logger = Logger.getLogger(PollTimer.class);
 
 	private static Date lastRun;
 	private static Date nextRun;
@@ -161,8 +161,8 @@ public class PollTimer {
 	 */
 	public static void start(ServiceExecuter services, int method, Object interval) {		
 		
-		logger.debug("Poll Setting: " + method);		
-		logger.debug("Poll interval(s): " + interval);
+		logger.info("Poll Setting: " + method);		
+		logger.info("Poll interval(s): " + interval);
 		
 		if(method == ControllerBean.FREQUENCY) {
 			// run timer as frequency.
@@ -177,7 +177,7 @@ public class PollTimer {
 		
 		if(PollTimer.isRunning()) {
 			Date startTime = new Date(System.currentTimeMillis());
-			logger.info("Poll timer successfully started on "+startTime);
+			logger.info("Poll timer successfully started on " + startTime);
 		}
 	
 	}

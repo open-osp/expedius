@@ -37,7 +37,6 @@ public class ControllerAction extends HttpServlet {//implements ServletContextLi
 				logger.info("Initializing Expedius from context path: " + context);
 				
 				properties.setProperty("CONTEXT_PATH", context);
-				//checkFirstRun(properties);
 			} else {
 				logger.error("Properties file path is missing. Ensure that it is set in web.xml.");
 			}
@@ -58,14 +57,8 @@ public class ControllerAction extends HttpServlet {//implements ServletContextLi
 		
 		String directive = " ";				 
 		String dispatch = "status";
-		ExpediusControllerHandler controllerHandler = null;
-		
-		if(ControllerAction.properties != null) {
+		ExpediusControllerHandler controllerHandler = ExpediusControllerHandler.getInstance();
 
-			controllerHandler = ExpediusControllerHandler.getInstance(ControllerAction.properties);
-			
-		}
-		
 		if (request.getParameter("control") != null) {
     		directive = FilterUtility.filter(request.getParameter("control").toLowerCase());
     	}
@@ -131,65 +124,5 @@ public class ControllerAction extends HttpServlet {//implements ServletContextLi
 	protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 		processRequest(request, response);
 	}
-	
-//	private boolean checkFirstRun(ExpediusProperties properties) {
-//		
-//		boolean status = true;
-//		String dataSavePath = null;
-//		
-//		if(properties.containsKey("DATA_PATH")) {		
-//			dataSavePath = properties.getProperty("DATA_PATH");
-//		} 
-//		
-//		if(dataSavePath != null) {
-//			if(! BeanRetrieval.getSavePath().equalsIgnoreCase(dataSavePath)) {
-//				BeanRetrieval.setSavePath(dataSavePath);
-//			}
-//			
-//			if(! BeanRetrieval.checkBean("ControllerBean")) {
-//				logger.info("First run detected. Creating new ControllerBean.");
-//				
-//				ControllerBean controllerBean = new ControllerBean();			
-//				controllerBean.setPollInterval(PollTimer.DEFAULT_POLL_INTERVAL);
-//				controllerBean.setPollSetting(ControllerBean.FREQUENCY);
-//				controllerBean.setStartWithServer(true);
-//				
-//				BeanRetrieval.setBean(controllerBean);
-//			}
-//			if(! BeanRetrieval.checkBean("ExcellerisConfigurationBean")) {
-//				logger.info("First run detected. Creating new ExcellerisConfigurationBean.");
-//				
-//				ConfigurationBean excellerisConfigurationBean = new ExcellerisConfigurationBean();		
-//				excellerisConfigurationBean.initialize(
-//					properties.getProperty("EXCELLERIS_URI"),	
-//					properties.getProperty("REQUEST_NEW"),
-//					properties.getProperty("LOGIN"),
-//					properties.getProperty("LOGOUT"),
-//					properties.getProperty("ACK_POSITIVE")
-//				);	
-//				
-//				BeanRetrieval.setBean(excellerisConfigurationBean);
-//			}
-//			if(! BeanRetrieval.checkBean("IhaConfigurationBean")) {
-//				logger.info("First run detected. Creating new IhaConfigurationBean.");
-//				
-//				ConfigurationBean ihaConfigurationBean = new IhaConfigurationBean();		
-//				ihaConfigurationBean.initialize(
-//					properties.getProperty("EXCELLERIS_URI"),	
-//					properties.getProperty("REQUEST_NEW"),
-//					properties.getProperty("LOGIN"),
-//					properties.getProperty("LOGOUT"),
-//					properties.getProperty("ACK_POSITIVE")
-//				);	
-//				
-//				BeanRetrieval.setBean(ihaConfigurationBean);
-//			}
-//		} else {
-//			logger.error("Missing data save path. Cannot execute Expedius on first run");
-//			status = false;
-//		}
-//		
-//		return status;
-//	}
 	
 }

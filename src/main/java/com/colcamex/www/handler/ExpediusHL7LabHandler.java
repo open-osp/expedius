@@ -126,17 +126,25 @@ public class ExpediusHL7LabHandler {
 
 	public void setFileName(String fileName) {
 		
-		String incomingFileName = new String( fileName.trim() );
-		
-		if(incomingFileName != null) {			
-			incomingFileName = incomingFileName.trim();
-			if(incomingFileName.contains(File.separator)) {
-				incomingFileName = fileName.replace(File.separator, "").trim();
-			} 			
-			incomingFileName = ( serviceName.toLowerCase() ) + "_" + ( incomingFileName.replaceAll(".enc", "") ).toLowerCase();
+		if(fileName == null)
+		{
+			this.fileName = fileName;
+		}
+		else 
+		{
+			String incomingFileName = new String( fileName.trim() );
+			
+			if(incomingFileName != null) {			
+				incomingFileName = incomingFileName.trim();
+				if(incomingFileName.contains(File.separator)) {
+					incomingFileName = fileName.replace(File.separator, "").trim();
+				} 			
+				incomingFileName = ( serviceName.toLowerCase() ) + "_" + ( incomingFileName.replaceAll(".enc", "") ).toLowerCase();
+			}
+			
+			this.fileName = incomingFileName;
 		}
 		
-		this.fileName = incomingFileName;
 	}
 
 	public void setProviderNumber(String providerNumber) {

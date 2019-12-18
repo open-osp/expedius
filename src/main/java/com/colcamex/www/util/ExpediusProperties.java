@@ -10,7 +10,6 @@ public class ExpediusProperties extends Properties {
 	private static final long serialVersionUID = 1L;
 	
 	public static final String PROPERTIES_FILE_NAME = "ExpediusProperties";
-//	public static final String DEFAULT_PATH = "";
 	
 	private static ExpediusProperties instance = null;	
 

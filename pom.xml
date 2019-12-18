@@ -5,7 +5,7 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>com.colcamex.www</groupId>
   <artifactId>Expedius</artifactId>
-  <version>3.9.1</version>
+  <version>4.12.19</version>
   <packaging>war</packaging>
   <name>Expedius</name>
   <description>Electronic lab auto downloader</description>

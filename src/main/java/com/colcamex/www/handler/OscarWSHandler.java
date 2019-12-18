@@ -47,7 +47,7 @@ public class OscarWSHandler {
 	private final static String LAB_UPLOAD_SERVICE = ExpediusProperties.getProperties().getProperty("EMR_LAB_UPLOAD_ENDPOINT").trim();
 	private final static String HOST = ExpediusProperties.getProperties().getProperty("EMR_HOST_NAME").trim();
 	private final static String CONTEXT = ExpediusProperties.getProperties().getProperty("EMR_CONTEXT_PATH").trim();
-	private final static String WEB_SERVICE = ExpediusProperties.getProperties().getProperty("WEB_SERVICE_ENDPOINT").trim();
+	private final static String WEB_SERVICE = ExpediusProperties.getProperties().getProperty("EMR_SERVICE_ENDPOINT").trim();
 	private final static Boolean SSL_ENABLED  = Boolean.parseBoolean(ExpediusProperties.getProperties().getProperty("EMR_SSL_ENABLED").trim());
 
 	private LabUploadWs hL7LabUploadWs;
@@ -62,9 +62,7 @@ public class OscarWSHandler {
 		
 		String protocol = SSL_ENABLED ? "https" : "http"; 
 		String endpointAddress = String.format("%1$s://%2$s/%3$s/%4$s/", protocol, HOST, CONTEXT, WEB_SERVICE);
-		
-		System.out.println("URL " + endpointAddress);
-		
+
 		LoginWsService loginWsService = new LoginWsService();
 		loginWs = loginWsService.getLoginWsPort();
 		BindingProvider provider = (BindingProvider) loginWs;

@@ -24,9 +24,7 @@ import com.colcamex.www.util.ExpediusProperties;
 public class ExpediusStartupListener implements ServletContextListener {
 
 	public static Logger logger = Logger.getLogger("ExpediusStartupListener");
-	
-	private static final String PROPERTIES_FILE_NAME = "ExpediusProperties";
-	
+
 	private static ExpediusProperties properties;
 	private static String vendor, version;
 	
@@ -41,7 +39,8 @@ public class ExpediusStartupListener implements ServletContextListener {
      * @see ServletContextListener#contextInitialized(ServletContextEvent)
      */
     public void contextInitialized(ServletContextEvent event) {
-    	_init(event.getServletContext().getInitParameter(PROPERTIES_FILE_NAME), 
+    	
+    	_init(event.getServletContext().getInitParameter(ExpediusProperties.PROPERTIES_FILE_NAME), 
 				event.getServletContext().getServletContextName());
 		
 		String emailMessage = "Expedius failed to recover from server restart. Please log-in to" + 
@@ -118,7 +117,7 @@ public class ExpediusStartupListener implements ServletContextListener {
 		if(propertiesPath != null) {
 			if(! propertiesPath.isEmpty()) {
 				properties = ExpediusProperties.getProperties(propertiesPath);
-				logger.info("Initializing Expedius from context path: "+context);
+				logger.info("Initializing Expedius from context path: " + propertiesPath);
 				properties.setProperty("CONTEXT_PATH", context);
 			} else {
 				logger.error("Properties file path is missing. Ensure that it is set in web.xml.");

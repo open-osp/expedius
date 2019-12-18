@@ -20,7 +20,7 @@ public class ControllerStatusAction extends HttpServlet {
 
 	private static final long serialVersionUID = 1L;
 
-	private static Logger logger = Logger.getLogger("ControllerStatusAction");
+	private static Logger logger = Logger.getLogger(ControllerStatusAction.class);
 
 	public void init(ServletConfig config) throws ServletException {
 		super.init(config);	
@@ -36,8 +36,8 @@ public class ControllerStatusAction extends HttpServlet {
 	protected void processRequest(HttpServletRequest request, HttpServletResponse response) 
 			throws ServletException, IOException {
 
-		//ControllerBean controllerBean = (ControllerBean) BeanRetrieval.getBean("ControllerBean");
-		ExpediusMessageHandler messageHandler = ExpediusControllerHandler.getInstance().getMessageHandler();
+		ExpediusControllerHandler controllerHandler = ExpediusControllerHandler.getInstance();
+		ExpediusMessageHandler messageHandler = controllerHandler.getMessageHandler();
 		ControllerBean controllerBean = messageHandler.getControllerBean();
 		
 		if (request.getParameter("dismisserror") != null) {  
@@ -47,7 +47,7 @@ public class ControllerStatusAction extends HttpServlet {
     		logger.info("User removing dismissable error:"+controllerBean.getDismissableErrorMessages().get(removeindex));
     		
     		controllerBean.removeDismissableErrorMessage(removeindex);
-    		//BeanRetrieval.setBean(controllerBean);
+
     		messageHandler.persist();
     	}
 		

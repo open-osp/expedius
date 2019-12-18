@@ -46,12 +46,8 @@ public class ConfigurationAction extends HttpServlet {
 	protected void processRequest(HttpServletRequest request, HttpServletResponse response) 
 			throws ServletException, IOException {
 
-		ExpediusControllerHandler controllerHandler = null;
-		
-		if(properties != null) {
-			controllerHandler = ExpediusControllerHandler.getInstance(properties);			
-		}
-		
+		ExpediusControllerHandler controllerHandler = ExpediusControllerHandler.getInstance();			
+	
 		ConfigurationBeanInterface configurationBean = null;
     	String directive = "configuration";
     	boolean excellerisOn = Boolean.FALSE;
@@ -105,9 +101,7 @@ public class ConfigurationAction extends HttpServlet {
     			}
     		} else {
     			message = "Passwords are null";
-    		}
-    		
-    		//request.setAttribute(loginForm + "_loginStatusMessage", message);   		
+    		}  		
     	} 
     	
 
@@ -153,9 +147,8 @@ public class ConfigurationAction extends HttpServlet {
 			
     	}
     	
-    	if(configurationBean != null) {
-    		controllerHandler.persistConfigurationBeans();
-    	} 
+
+    	controllerHandler.persistConfigurationBeans();
 
     	// get the client status of each service. But only if they are set to run.
     	if(excellerisOn) {

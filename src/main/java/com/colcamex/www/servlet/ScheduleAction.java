@@ -12,14 +12,15 @@ import javax.servlet.http.HttpServletResponse;
 import org.apache.log4j.Logger;
 
 import com.colcamex.www.bean.ControllerBean;
-import com.colcamex.www.util.BeanRetrieval;
+import com.colcamex.www.handler.ExpediusControllerHandler;
+import com.colcamex.www.handler.PollTimer;
+
 
 public class ScheduleAction extends HttpServlet  {
 
 	private static final long serialVersionUID = 1L;
 
-	public static Logger logger = Logger.getLogger("ScheduleAction");
-	private ControllerBean controllerBean = null;
+	public static Logger logger = Logger.getLogger(ScheduleAction.class);
 
 	/**
 	 * 
@@ -31,18 +32,15 @@ public class ScheduleAction extends HttpServlet  {
 	protected void processRequest(HttpServletRequest request, HttpServletResponse response) 
 			throws ServletException, IOException {
 	
-		try {
-			controllerBean = (ControllerBean) BeanRetrieval.getBean("ControllerBean");
-		} catch (ClassNotFoundException e1) {
-			e1.printStackTrace();
-		}
-		
 		String directive = "schedule";
 		String action = request.getParameter("schedule");	
 		String pollInterval = request.getParameter("pollInterval");
 		String pollSetting = request.getParameter("pollSetting");
 		String startWithServer = request.getParameter("startWithServer");
 		String savedStatusMessage = "Settings Saved";
+		
+		ExpediusControllerHandler controllerHandler = ExpediusControllerHandler.getInstance();
+		ControllerBean controllerBean = controllerHandler.getControllerBean();
 
 		if((action != null)&&(action.equalsIgnoreCase("save"))) {
 			
@@ -93,19 +91,15 @@ public class ScheduleAction extends HttpServlet  {
 	
 			}
 			
-			if(BeanRetrieval.setBean(controllerBean)) {	
-	    		request.setAttribute("savedStatusMessage", savedStatusMessage);
-	    		
-//	    		if(PollTimer.isRunning()) {
-//	    			
-//	    			if(controllerBean.getPollSetting() == PollTimer.TIME_OF_DAY) {
-//	    				PollTimer.restart(controllerBean.getPollSetting(), controllerBean.getTimeArray());
-//	    			}
-//	    			if(controllerBean.getPollSetting() == PollTimer.FREQUENCY) {
-//	    				PollTimer.restart(controllerBean.getPollSetting(), controllerBean.getPollInterval());
-//	    			}
-//	    		}
-	    	}
+			if(controllerHandler.persistBean()) {
+				request.setAttribute("savedStatusMessage", savedStatusMessage);
+
+	    		if(PollTimer.isRunning()) {	    			
+	    			controllerHandler.stop();
+					controllerHandler.start();
+	    		}			
+			}
+
 		}
 		
 		request.setAttribute("controllerBean", controllerBean);

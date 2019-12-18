@@ -1,5 +1,6 @@
 package com.colcamex.www.handler;
 
+import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -34,7 +35,7 @@ public class ExpediusControllerHandler {
 	public static Logger logger = Logger.getLogger(ExpediusControllerHandler.class);
 
 	// hard coded to ensure local access.
-	private static final String ENDPOINT_ROOT = "http://127.0.0.1:";
+//	private static final String ENDPOINT_ROOT = "http://127.0.0.1:";
 	public static final String IHA_CONFIGURATION_NAME = "IhaConfigurationBean";
 	public static final String EXCELLERIS_CONFIGURATION_NAME = "ExcellerisConfigurationBean";
 	public static final String CONTROLLER_NAME = "ControllerBean";
@@ -47,67 +48,63 @@ public class ExpediusControllerHandler {
 	private static ExpediusControllerHandler instance;
 	private boolean excellerison;
 	private boolean ihapoion;
-	private String webserviceEndpoint;
-	
-	private ExpediusControllerHandler() {
-		// cannot be directly instantiated.
+//	private String webserviceEndpoint;
+
+	private ExpediusControllerHandler(ExpediusProperties properties) {
+		_init(properties);	
 	}
 		
-	public static ExpediusControllerHandler getInstance() {
-		if(instance == null) {
-			instance = new ExpediusControllerHandler();
-		}
-		return instance;
-	}
-
-	public static ExpediusControllerHandler getInstance(ExpediusProperties properties, ControllerBean controllerBean, 
-			HashMap<String, ConfigurationBeanInterface> configurationBeans) {
-		if(instance == null) {
-			instance = new ExpediusControllerHandler(properties, controllerBean, configurationBeans);
-		}
-		return instance;
-	}
-	
-	private ExpediusControllerHandler(ExpediusProperties properties, ControllerBean controllerBean, 
-			HashMap<String, ConfigurationBeanInterface> configurationBeans) {
-		_init(properties, controllerBean, configurationBeans);
-	}
-	
-	public static ExpediusControllerHandler getInstance(ExpediusProperties properties, ControllerBean controllerBean) {
-		if(instance == null) {
-			instance = new ExpediusControllerHandler(properties, controllerBean, null);
-		}
-		return instance;
-	}
-	
-	private ExpediusControllerHandler(ExpediusProperties properties, ControllerBean controllerBean) {
-		_init(properties, controllerBean, null);
-	}
-	
-	public static ExpediusControllerHandler getInstance(ExpediusProperties properties, 
-			HashMap<String, ConfigurationBeanInterface> configurationBeans) {
-		if(instance == null) {
-			instance = new ExpediusControllerHandler(properties, null, configurationBeans);
-		}
-		return instance;
-	}
-	
-	private ExpediusControllerHandler(ExpediusProperties properties, 
-			HashMap<String, ConfigurationBeanInterface> configurationBeans) {
-		_init(properties, null, configurationBeans);
-	}
-	
 	public static ExpediusControllerHandler getInstance(ExpediusProperties properties) {
 		if(instance == null) {
-			instance = new ExpediusControllerHandler(properties, null, null);
+			instance = new ExpediusControllerHandler(properties);
 		}
 		return instance;
 	}
-	private ExpediusControllerHandler(ExpediusProperties properties) {
-		_init(properties, null, null);	
+	
+	public static ExpediusControllerHandler getInstance() {
+		return instance;
 	}
+	
 
-	private void _init(ExpediusProperties properties, ControllerBean controllerBean, HashMap<String, ConfigurationBeanInterface> configurationBeans) {
+//
+//	public static ExpediusControllerHandler getInstance(ExpediusProperties properties, ControllerBean controllerBean, 
+//			HashMap<String, ConfigurationBeanInterface> configurationBeans) {
+//		if(instance == null) {
+//			instance = new ExpediusControllerHandler(properties, controllerBean, configurationBeans);
+//		}
+//		return instance;
+//	}
+//	
+//	private ExpediusControllerHandler(ExpediusProperties properties, ControllerBean controllerBean, 
+//			HashMap<String, ConfigurationBeanInterface> configurationBeans) {
+//		_init(properties, controllerBean, configurationBeans);
+//	}
+//	
+//	public static ExpediusControllerHandler getInstance(ExpediusProperties properties, ControllerBean controllerBean) {
+//		if(instance == null) {
+//			instance = new ExpediusControllerHandler(properties, controllerBean, null);
+//		}
+//		return instance;
+//	}
+//	
+//	private ExpediusControllerHandler(ExpediusProperties properties, ControllerBean controllerBean) {
+//		_init(properties, controllerBean, null);
+//	}
+//	
+//	public static ExpediusControllerHandler getInstance(ExpediusProperties properties, 
+//			HashMap<String, ConfigurationBeanInterface> configurationBeans) {
+//		if(instance == null) {
+//			instance = new ExpediusControllerHandler(properties, null, configurationBeans);
+//		}
+//		return instance;
+//	}
+//	
+//	private ExpediusControllerHandler(ExpediusProperties properties, 
+//			HashMap<String, ConfigurationBeanInterface> configurationBeans) {
+//		_init(properties, null, configurationBeans);
+//	}
+
+	private void _init(ExpediusProperties properties) {
 		Thread thread = Thread.currentThread();
 		thread.setName("ExpediusControllerHandler"+"["+thread.getId()+"]");
 		logger.debug("Initializing ExpediusControllerHandler. Current Thread is: " + thread.getName());
@@ -120,13 +117,32 @@ public class ExpediusControllerHandler {
 		ExpediusHL7LabHandler labHandler = null;
 		ExpediusConnect connection = null;
 		ExpediusW3CDocumentHandler documentHandler = null;
-		String webservicePort = null;
-		String emrContextPath = null;
-
+//		String webservicePort = null;
+//		String emrContextPath = null;
 		
 		if(properties != null) {
 			
 			setProperties(properties);
+			
+			if(! properties.containsKey("EMR_SSL_ENABLED")) {
+				logger.error("Missing emr ssl enabled in properties.");
+				return;
+			} 
+			
+			if(! properties.containsKey("EMR_HOST_NAME")) {
+				logger.error("Missing webservice hostname in properties.");
+				return;
+			} 
+			
+			if(! properties.containsKey("EMR_CONTEXT_PATH")) {	
+				logger.error("Missing webservice context path in properties.");
+				return;
+			} 
+			
+			if(! properties.containsKey("EMR_SERVICE_ENDPOINT")) {	
+				logger.error("Missing webservice endpoint in properties");
+				return;
+			} 
 			
 			if(properties.containsKey("EXCELLERIS")) {
 				setExcellerison( Boolean.parseBoolean(properties.getProperty("EXCELLERIS")) );
@@ -139,47 +155,27 @@ public class ExpediusControllerHandler {
 			checkFirstRun(properties);			
 			
 			// get the controller bean for global configuration parameters.
-			if(this.controllerBean != null) {
-				setControllerBean( this.controllerBean );
-			} else {
-				setControllerBean( CONTROLLER_NAME );
-			}
+//			if(this.controllerBean != null) {
+//				setControllerBean( this.controllerBean );
+//			} else {
+			setControllerBean( CONTROLLER_NAME );
+//			}
 			
 			// pass the ExpediusControllerBean pointer to the ExpediusMessageHandler.
 			if(getMessageHandler() != null) {
-				getMessageHandler().setControllerBean(this.controllerBean);
+				getMessageHandler().setControllerBean(getControllerBean());
 			}
 			
 			// createExpediusLog(properties);
+		
 			
-			if(properties.containsKey("EMR_WEBSERVICE_PORT")) {
-				webservicePort = properties.getProperty("EMR_WEBSERVICE_PORT").trim(); 
-			} else {
-				logger.error("Missing webservice port in properties.");
-				return;
-			}
-			
-			if(properties.containsKey("EMR_CONTEXT_PATH")) {		
-				emrContextPath = properties.getProperty("EMR_CONTEXT_PATH").trim();
-			} else {
-				logger.error("Missing webservice context path in properties.");
-				return;
-			}
-			
-			if(properties.containsKey("WEB_SERVICE_ENDPOINT")) {	
-				webserviceEndpoint = properties.getProperty("WEB_SERVICE_ENDPOINT").trim();
-			} else {
-				logger.error("Missing webservice endpoint in properties");
-				return;
-			}
-			
-			if(
-				(webservicePort != null) || (webservicePort != " ") &&
-				(emrContextPath != null) || (emrContextPath != " ")  &&
-				(webserviceEndpoint != null) || (webserviceEndpoint != " ") 
-			){
-				webserviceEndpoint = ENDPOINT_ROOT + webservicePort + emrContextPath + webserviceEndpoint;
-			} 
+//			if(
+//				(webservicePort != null) || (webservicePort != " ") &&
+//				(emrContextPath != null) || (emrContextPath != " ")  &&
+//				(webserviceEndpoint != null) || (webserviceEndpoint != " ") 
+//			){
+//				webserviceEndpoint = ENDPOINT_ROOT + webservicePort + emrContextPath + webserviceEndpoint;
+//			} 
 
 		} else {
 			logger.error("Properties file not provided.");
@@ -187,11 +183,11 @@ public class ExpediusControllerHandler {
 		}
 				
 		// each lab distribution service has its own links and configuration options.
-		if(this.configurationBeans != null) {
-			setConfigurationBeans(this.configurationBeans);
-		} else {
-			setConfigurationBeans( new HashMap<String, ConfigurationBeanInterface>() );			
-		}
+//		if(this.configurationBeans != null) {
+//			setConfigurationBeans(this.configurationBeans);
+//		} else {
+		setConfigurationBeans( new HashMap<String, ConfigurationBeanInterface>() );			
+//		}
 
 		if(excellerison) {
 			arraysize = arraysize + 1;
@@ -210,13 +206,12 @@ public class ExpediusControllerHandler {
 			return;
 		}
 		
-		// Lab handler parses the downloaded results and then connects to Oscar's web services.
-		// instantiated here so that incomplete webservice connections to Oscar can be caught prior 
-		// to going further.		
-		OscarWSHandler webserviceHandler = new OscarWSHandler();
-		webserviceHandler.setUsername( properties.getProperty( "EMR_WS_USERNAME" ).trim() );
-		webserviceHandler.setPassword( properties.getProperty( "EMR_WS_PASSWORD" ).trim() );
-		
+		/*
+		 *  Lab handler parses the downloaded results and then connects to Oscar's web services.
+		 *  instantiated here so that incomplete webservice connections to Oscar can be caught prior 
+		 *  to going further.
+		 */		
+		OscarWSHandler webserviceHandler = new OscarWSHandler(properties.getProperty( "EMR_WS_USERNAME" ).trim(), properties.getProperty( "EMR_WS_PASSWORD" ).trim());
 		labHandler = new ExpediusHL7LabHandler(properties);
 		labHandler.setWebserviceHandler(webserviceHandler);
 		
@@ -303,8 +298,9 @@ public class ExpediusControllerHandler {
     	int pollSetting = 0;
     	logger.info("<-- STARTING AUTO DOWNLOAD -->");
     	
-    	boolean clientStatus = isClientsReady();    	
-    	logger.info("Client status is: "+clientStatus);
+    	boolean clientStatus = isClientsReady(); 
+    	
+    	logger.info("Client status is: " + clientStatus);
     	
 		//boolean hostStatus = isHostStatus();				
 		//logger.info("Host status is: "+hostStatus);		
@@ -441,30 +437,27 @@ public class ExpediusControllerHandler {
     	
     	if(logPath != null) {
     		logPath = logPath.trim();
-    		if(! logPath.endsWith("/")) {
-    			logPath = logPath + "/";
+    		if(! logPath.endsWith(File.separator)) {
+    			logPath = logPath + File.separator;
     		}
     	}
     	
     	if (expediusContext != null) {
     		expediusContext = expediusContext.trim();
-    		if(! expediusContext.startsWith("/")) {
-    			expediusContext = "/"+expediusContext;
+    		if(! expediusContext.startsWith(File.separator)) {
+    			expediusContext = File.separator + expediusContext;
     		}
     	}
     	
     	if(htmlUserLogPath != null) {
     		htmlUserLogPath = htmlUserLogPath.trim();        		
     		htmlUserLogPath = htmlUserLogPath + expediusContext;
-    		if(! htmlUserLogPath.endsWith("/")) {
-    			htmlUserLogPath = htmlUserLogPath + "/";
+    		if(! htmlUserLogPath.endsWith(File.separator)) {
+    			htmlUserLogPath = htmlUserLogPath + File.separator;
     		}
     	}
-    	
-    	// htmlUserLogPath = "/Users/denniswarren/Documents/colcamex/workspace/Servers/Tomcat v6.0 Server at localhost-config/wtpwebapps/Expedius/";
-    	
+
 		// logging and data sources.
-		// BeanRetrieval.setSavePath(properties.getProperty("DATA_PATH").trim());
 		ExpediusLog.setLogPath(logPath);
 		logger.info("Path for Expedius logging: "+logPath);
 		ExpediusLog.sethtmlLogPath(htmlUserLogPath);
@@ -573,7 +566,7 @@ public class ExpediusControllerHandler {
 		setControllerBean( (ControllerBean) getBean(beanName));		
 	}
 
-	public void setControllerBean(ControllerBean controllerBean) {
+	private void setControllerBean(ControllerBean controllerBean) {
 		this.controllerBean = controllerBean;
 	}
 
