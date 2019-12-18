@@ -15,8 +15,10 @@ import com.colcamex.www.http.AbstractConnectionController;
 public class IhaController extends AbstractConnectionController {
 	
 	private static final String DEFAULT_IHAPOI_LAB_TYPE = "IHA";
-	// Root tag "messages" contains children "message". Each message is an HL7 lab with a unique id.
-	// Each lab report contains attributes: format="HL7" msgId="LAB4315059.hl7" version="2.3"
+	/*
+	 *  Root tag "messages" contains children "message". Each message is an HL7 lab with a unique id.
+	 *  Each lab report contains attributes: format="HL7" msgId="LAB4315059.hl7" version="2.3"
+	 */
 	private String labType;
 
 	public IhaController(ConfigurationBeanInterface configurationBean) {
@@ -57,11 +59,7 @@ public class IhaController extends AbstractConnectionController {
 					handleError("Expedius has failed to fetch lab files. Contact support. ", e, ERROR, true);
 				} catch (ParserConfigurationException e) {				
 					handleError("There was a problem with parsing the server response while fetching lab files.", e, ERROR, true);
-				}  
-//				finally {
-//					// for maintenance.
-//					close();									
-//				}
+				} 
 			}
 			
 			if( getConnection().getResponseCode() == HttpsURLConnection.HTTP_OK ) {

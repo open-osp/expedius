@@ -16,7 +16,7 @@ import com.colcamex.www.http.AbstractConnectionController;
  */
 public class ServiceExecuter implements Runnable {
 
-	private static Logger logger = Logger.getLogger("ServiceExecuter");
+	private static Logger logger = Logger.getLogger(ServiceExecuter.class);
 	
 	private AbstractConnectionController[] services;
 	private static ServiceExecuter instance = null;
@@ -48,8 +48,7 @@ public class ServiceExecuter implements Runnable {
 		
 		if(services.length > 0) {
 			
-			// need to suspend the next service while the previous is
-			// running.  Thread suspend?
+			//TODO need to suspend the next service while the previous is running.  Thread suspend?
 			
 			while( (status) && (i < services.length) ) {
 				

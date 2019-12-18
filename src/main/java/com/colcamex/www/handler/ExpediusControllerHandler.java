@@ -34,8 +34,6 @@ public class ExpediusControllerHandler {
 	
 	public static Logger logger = Logger.getLogger(ExpediusControllerHandler.class);
 
-	// hard coded to ensure local access.
-//	private static final String ENDPOINT_ROOT = "http://127.0.0.1:";
 	public static final String IHA_CONFIGURATION_NAME = "IhaConfigurationBean";
 	public static final String EXCELLERIS_CONFIGURATION_NAME = "ExcellerisConfigurationBean";
 	public static final String CONTROLLER_NAME = "ControllerBean";
@@ -48,7 +46,6 @@ public class ExpediusControllerHandler {
 	private static ExpediusControllerHandler instance;
 	private boolean excellerison;
 	private boolean ihapoion;
-//	private String webserviceEndpoint;
 
 	private ExpediusControllerHandler(ExpediusProperties properties) {
 		_init(properties);	
@@ -64,45 +61,6 @@ public class ExpediusControllerHandler {
 	public static ExpediusControllerHandler getInstance() {
 		return instance;
 	}
-	
-
-//
-//	public static ExpediusControllerHandler getInstance(ExpediusProperties properties, ControllerBean controllerBean, 
-//			HashMap<String, ConfigurationBeanInterface> configurationBeans) {
-//		if(instance == null) {
-//			instance = new ExpediusControllerHandler(properties, controllerBean, configurationBeans);
-//		}
-//		return instance;
-//	}
-//	
-//	private ExpediusControllerHandler(ExpediusProperties properties, ControllerBean controllerBean, 
-//			HashMap<String, ConfigurationBeanInterface> configurationBeans) {
-//		_init(properties, controllerBean, configurationBeans);
-//	}
-//	
-//	public static ExpediusControllerHandler getInstance(ExpediusProperties properties, ControllerBean controllerBean) {
-//		if(instance == null) {
-//			instance = new ExpediusControllerHandler(properties, controllerBean, null);
-//		}
-//		return instance;
-//	}
-//	
-//	private ExpediusControllerHandler(ExpediusProperties properties, ControllerBean controllerBean) {
-//		_init(properties, controllerBean, null);
-//	}
-//	
-//	public static ExpediusControllerHandler getInstance(ExpediusProperties properties, 
-//			HashMap<String, ConfigurationBeanInterface> configurationBeans) {
-//		if(instance == null) {
-//			instance = new ExpediusControllerHandler(properties, null, configurationBeans);
-//		}
-//		return instance;
-//	}
-//	
-//	private ExpediusControllerHandler(ExpediusProperties properties, 
-//			HashMap<String, ConfigurationBeanInterface> configurationBeans) {
-//		_init(properties, null, configurationBeans);
-//	}
 
 	private void _init(ExpediusProperties properties) {
 		Thread thread = Thread.currentThread();
@@ -117,9 +75,7 @@ public class ExpediusControllerHandler {
 		ExpediusHL7LabHandler labHandler = null;
 		ExpediusConnect connection = null;
 		ExpediusW3CDocumentHandler documentHandler = null;
-//		String webservicePort = null;
-//		String emrContextPath = null;
-		
+
 		if(properties != null) {
 			
 			setProperties(properties);
@@ -153,41 +109,22 @@ public class ExpediusControllerHandler {
 			}
 									
 			checkFirstRun(properties);			
-			
-			// get the controller bean for global configuration parameters.
-//			if(this.controllerBean != null) {
-//				setControllerBean( this.controllerBean );
-//			} else {
+
 			setControllerBean( CONTROLLER_NAME );
-//			}
-			
+
 			// pass the ExpediusControllerBean pointer to the ExpediusMessageHandler.
 			if(getMessageHandler() != null) {
 				getMessageHandler().setControllerBean(getControllerBean());
 			}
 			
 			// createExpediusLog(properties);
-		
-			
-//			if(
-//				(webservicePort != null) || (webservicePort != " ") &&
-//				(emrContextPath != null) || (emrContextPath != " ")  &&
-//				(webserviceEndpoint != null) || (webserviceEndpoint != " ") 
-//			){
-//				webserviceEndpoint = ENDPOINT_ROOT + webservicePort + emrContextPath + webserviceEndpoint;
-//			} 
 
 		} else {
 			logger.error("Properties file not provided.");
 			return;
 		}
-				
-		// each lab distribution service has its own links and configuration options.
-//		if(this.configurationBeans != null) {
-//			setConfigurationBeans(this.configurationBeans);
-//		} else {
+
 		setConfigurationBeans( new HashMap<String, ConfigurationBeanInterface>() );			
-//		}
 
 		if(excellerison) {
 			arraysize = arraysize + 1;
