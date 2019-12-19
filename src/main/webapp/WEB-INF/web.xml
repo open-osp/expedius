@@ -75,7 +75,11 @@
 	<login-config>
 		<auth-method>BASIC</auth-method>
 	</login-config>
-
+	
+	<security-role>
+	    <role-name>expedius</role-name>
+	</security-role>
+	
 	<error-page>
 		<error-code>500</error-code>
 		<location>/pages/error/error.jsp</location>
@@ -96,10 +100,12 @@
 		<param-name>ExpediusProperties</param-name>
 		<param-value>/var/lib/expedius/expedius.properties</param-value>
 	</context-param>
+	
 	<mime-mapping>
 		<extension>pfx</extension>
 		<mime-type>application/x-pkcs12</mime-type>
 	</mime-mapping>
+	
 	<listener>
 		<listener-class>com.colcamex.www.servlet.ExpediusStartupListener</listener-class>
 	</listener>

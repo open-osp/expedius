@@ -2,6 +2,7 @@ package com.colcamex.www.handler;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -49,6 +50,9 @@ public class OscarWSHandler {
 	private final static String CONTEXT = ExpediusProperties.getProperties().getProperty("EMR_CONTEXT_PATH").trim();
 	private final static String WEB_SERVICE = ExpediusProperties.getProperties().getProperty("EMR_SERVICE_ENDPOINT").trim();
 	private final static Boolean SSL_ENABLED  = Boolean.parseBoolean(ExpediusProperties.getProperties().getProperty("EMR_SSL_ENABLED").trim());
+	private final static URL LOGIN_WSDL = OscarWSHandler.class.getResource("LoginService.wsdl");
+	private final static URL LAB_UPLOAD_WSDL = OscarWSHandler.class.getResource("LabUploadService.wsdl");
+
 
 	private LabUploadWs hL7LabUploadWs;
 	private LoginWs loginWs;
@@ -63,12 +67,12 @@ public class OscarWSHandler {
 		String protocol = SSL_ENABLED ? "https" : "http"; 
 		String endpointAddress = String.format("%1$s://%2$s/%3$s/%4$s/", protocol, HOST, CONTEXT, WEB_SERVICE);
 
-		LoginWsService loginWsService = new LoginWsService();
+		LoginWsService loginWsService = new LoginWsService(LOGIN_WSDL);
 		loginWs = loginWsService.getLoginWsPort();
 		BindingProvider provider = (BindingProvider) loginWs;
 		provider.getRequestContext().put(BindingProvider.ENDPOINT_ADDRESS_PROPERTY, endpointAddress + LOGIN_SERVICE);
 		
-		LabUploadWsService labUploadWsService = new LabUploadWsService();	
+		LabUploadWsService labUploadWsService = new LabUploadWsService(LAB_UPLOAD_WSDL);	
 		hL7LabUploadWs = labUploadWsService.getLabUploadWsPort();		
 		provider = (BindingProvider)hL7LabUploadWs;
 		provider.getRequestContext().put(BindingProvider.ENDPOINT_ADDRESS_PROPERTY, endpointAddress + LAB_UPLOAD_SERVICE);	
@@ -155,6 +159,7 @@ public class OscarWSHandler {
 			tlsCP.setDisableCNCheck(Boolean.TRUE);
 			httpConduit.setTlsClientParameters(tlsCP);
 			httpConduit.getClient().setContentType("multipart/form-data");
+			
 		} catch (UnrecoverableKeyException e) {
 			logger.error("", e);
 		} catch (KeyManagementException e) {

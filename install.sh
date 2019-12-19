@@ -21,7 +21,7 @@ if [ ! -d "${APP_DATA}/.appdata" ];
 		echo "Setting up file structure..."
 
 		sudo mkdir ${APP_DATA}
-		sudo mkdir ${APP_DATA}/excelleris
+		sudo mkdir ${APP_DATA}/hl7
 		sudo mkdir ${APP_DATA}/.appdata
 		sudo mkdir ${APP_DATA}/.ssl
 		sudo mkdir ${APP_DATA}/logs
@@ -71,58 +71,12 @@ do
 	fi
 done
 
-echo "Adding plugin configuration to Oscar properties..."
-
-if [ -f "${CATALINA_HOME}/${OSCAR_CONTEXT}.properties" ];
-
-	then
-
-# set the default Oscar properties path.
-
-		TEMP=${CATALINA_HOME}/${OSCAR_CONTEXT}.properties
-
-	else
-
-# get the custom path.
-
-		echo " ERROR: Oscar properties file not found at ${CATALINA_HOME}/${OSCAR_CONTEXT}.properties"
-
-		while read -p "Enter FULL path to Oscar properties file (ie. /usr/share/tomcat6/oscar.properties): " OSCAR_PROPERTIES
-		do
-
-			if [ -f ${OSCAR_PROPERTIES} ];
-				then
-					TEMP=${OSCAR_PROPERTIES}
-					break
-				else
-					echo " ERROR: Oscar properties file not found at ${OSCAR_PROPERTIES}"
-			fi
-
-		done
-fi
-
-# modify Oscar's property file.
-
-sudo cp -p ${TEMP} ${TEMP}.save
-sed -e '/ModuleNames=Expedius/d' -e '/http_expedius_endpoint=.*/d' $TEMP > oscartemp
-echo http_expedius_endpoint=//127.0.0.1:8080/${OSCAR_CONTEXT}/ws >> oscartemp
-echo 'ModuleNames=Expedius' >> oscartemp
-sudo mv oscartemp $TEMP
 
 echo "Deploying Expedius..."
 
 # put the war file in place
 	sudo cp ./Expedius.war ${TOMCAT_PATH}
-
-# put the jar file in place
-	sudo cp ./expediusWs.jar ${TOMCAT_PATH}/${OSCAR_CONTEXT}/WEB-INF/lib
-		
+	
 # clean up
-
-sudo rm ./Expedius.war
-sudo rm ./expediusWs.jar
-sudo rm ./expedius.properties
-sudo rm ./README.txt
-sudo rm ./install.sh
 
 echo Install complete.
