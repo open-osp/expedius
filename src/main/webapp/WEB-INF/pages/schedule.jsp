@@ -2,10 +2,9 @@
     pageEncoding="ISO-8859-1"%>
 
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
-<body id="schedulepage">
-<header>	
 <jsp:include page="includes/header.jsp"></jsp:include>
-</header>
+
+<body id="schedulepage">
 
 	<div class="body">
 <jsp:include page="includes/menu.jsp"></jsp:include>
@@ -14,7 +13,7 @@
 
 	<form action="${pageContext.request.contextPath}/schedule" method="post" id="scheduleForm">
 
-		<h3 class="paneltitle">Poll Schedule</h3>
+		<h3 class="expedius_paneltitle">Download Schedule</h3>
 			
 		<fieldset id="frequency">
 		<legend>		

@@ -112,7 +112,6 @@ public class ExcellerisController extends AbstractConnectionController {
 				 *  if the lab handler succeeds then all the labs can be acknowledged.
 				 *  acknowledgeIds = documentHandler.getMessageIdList();
 				 */
-
 				try {
 					getConnection().acknowledge(ACKNOWLEDGE);
 				} catch (SocketTimeoutException e) {				

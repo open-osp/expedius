@@ -3,7 +3,7 @@
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>  
  
 <!DOCTYPE html>
-<html>
+
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
 
@@ -25,6 +25,8 @@
 
 
 </head>
+<header>
 	<img width="50px" src="${pageContext.request.contextPath}/assets/logoimagealone.jpg" alt="Expedius by Colcamex" />
 		<h1>Expedius</h1>
 
+</header>

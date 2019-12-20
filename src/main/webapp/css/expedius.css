@@ -11,6 +11,14 @@ ul {
 	list-style-type: none;
 }
 
+h3.expedius_paneltitle {
+	padding: 0px !important;
+	margin-top: 10px !important;
+	float: left;
+	clear: left;
+	color: blue !important;
+}
+
 header,nav,footer {
 	margin: 10px auto;
 	width: 100%;
@@ -199,13 +207,6 @@ fieldset {
 form {
 	float: left;
 	width: 100%;
-}
-
-h3 {
-	margin-top: 10px;
-	float: left;
-	clear: left;
-	color: blue;
 }
 
 footer {

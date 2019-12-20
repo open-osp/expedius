@@ -7,25 +7,31 @@
 	var status = '<c:out value="${controllerBean.status}"/>';
 </script>
 
-<body id="statuspage" >
-	<header>
+<jsp:include page="includes/header.jsp"></jsp:include>
 	
-	<jsp:include page="includes/header.jsp"></jsp:include>
-	</header>
+<body id="statuspage" >
+
+
+
 		<div class="body">
 		
 	<jsp:include page="includes/menu.jsp"></jsp:include>
 
 	<div id="status" class="panel" >
 		<form action="${pageContext.request.contextPath}/controller" method="POST" id="statusPanel" >
-			<h3>eLab Expeditor</h3>	
+			<h3 class="expedius_paneltitle" >eLab Expeditor</h3>	
 				
 			<fieldset id="statusField">
 			
-				<legend>Status</legend>
+				<legend>Excelleris HL7 v2.3 Labs</legend>
+				
+					<img src="${pageContext.request.contextPath}/assets/question.jpg" width="18px" height="18px"
+							id="statusPanelInfo"
+							name="statusPanelInfo" 
+							title="The current status of the auto lab download process. Click refresh to clear any previous messages." />
 
 				<div id="statusWindow" >
-				
+
 					<c:if test="${controllerBean.status}" >
 						<h2 style="color:green;">Running</h2>
 					</c:if>
@@ -91,7 +97,11 @@
 
 			<fieldset id="timerControls">
 				<legend>Auto Download</legend>
-				<span style="font-size:80%; margin-left:10px; padding-top:10px;">Automatically retrieve labs at scheduled times. <a href="${pageContext.request.contextPath}/schedule">set schedule</a></span>
+				<img src="${pageContext.request.contextPath}/assets/question.jpg" width="18px" height="18px"
+					id="automaticDownloadStartInfo"
+					name="automaticDownloadStartInfo" 
+					title="Automatically retrieve labs at the frequency defined on the Schedule page." />
+					
 					<div class="buttonGroup">
 						<input type="submit" id="stop" name="control" value="Stop" />
 						<input type="submit" id="start" name="control" value="Start" />
@@ -101,11 +111,14 @@
 				<legend>Manual Download</legend>
 					
 					<div class="buttonGroup">
-						<input type="submit" id="download" name="control" value="Get Labs Now" />
+						<input type="submit" id="download" name="control" value="Get All Labs Now" />
 					</div>
 					
 					<c:if test="${empty message}" >	
-						<span style="font-size:80%; margin-left:10px; padding-top:10px; ">Retrieve labs now.</span>
+						<img src="${pageContext.request.contextPath}/assets/question.jpg" width="18px" height="18px"
+							id="manualDownloadInfo"
+							name="manualDownloadInfo" 
+							title="Retrieve all labs now. The automatic lab download process must be stopped first for this to work." />
 					</c:if>
 					
 					<c:if test="${not empty message}" >				
@@ -115,9 +128,6 @@
 					</c:if>
 
 			</fieldset>
-		
-			<!-- div id="progressbar" style="width:90%; margin-top:10px; margin-left:10px;"></div-->								
-		
 		</form>
 	</div>
 	</div>

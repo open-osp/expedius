@@ -14,7 +14,7 @@
 		
 		<input type="hidden" name="login" value="ExcellerisConfiguration" />
 	
-	<h3 class="paneltitle">Excelleris Configuration</h3>
+		<h3 class="expedius_paneltitle">Excelleris Configuration</h3>
 	
 		<fieldset>
 		

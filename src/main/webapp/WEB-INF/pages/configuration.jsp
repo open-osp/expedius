@@ -2,10 +2,9 @@
     pageEncoding="ISO-8859-1"%>
 
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
-<body id="configurationpage">
-<header>	
+<body id="configurationpage">	
 <jsp:include page="includes/header.jsp"></jsp:include>
-</header>
+
 <div class="body">
 <jsp:include page="includes/menu.jsp"></jsp:include>
 

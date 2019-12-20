@@ -13,7 +13,7 @@
 		
 		<input type="hidden" name="login" value="IhaConfiguration" />
 		
-		<h3 class="paneltitle">IHA POI Configuration</h3>
+		<h3 class="expedius_paneltitle">IHA POI Configuration</h3>
 		
 		<fieldset>
 		
