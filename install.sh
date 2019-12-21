@@ -14,6 +14,16 @@ TOMCAT_PATH=${CATALINA_BASE}\/webapps
 ADMIN_EMAIL=none
 APP_DATA=\/var\/lib\/expedius
 
+
+# get oscar certificates *NOT TESTED YET*
+#openssl s_client -connect ${REMHOST}:${REMPORT}
+
+#echo -n | openssl s_client -connect HOST:PORTNUMBER \
+#    | sed -ne '/-BEGIN CERTIFICATE-/,/-END CERTIFICATE-/p' > /tmp/$SERVERNAME.cert
+
+#keytool -import -v -trustcacerts -alias oscar -file oscar_cert.crt -keystore expedius_trust.jks -storepass 3mr1esting89! 
+
+
 # set up application directories
 # file permissions for Tomcat rw = 755
 if [ ! -d "${APP_DATA}/.appdata" ]; 

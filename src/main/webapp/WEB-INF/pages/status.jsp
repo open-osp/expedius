@@ -111,7 +111,7 @@
 				<legend>Manual Download</legend>
 					
 					<div class="buttonGroup">
-						<input type="submit" id="download" name="control" value="Get All Labs Now" />
+						<input type="submit" id="download" name="control" value="Get Labs Now" />
 					</div>
 					
 					<c:if test="${empty message}" >	

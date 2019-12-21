@@ -7,6 +7,9 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.io.StringWriter;
 import java.io.UnsupportedEncodingException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 
 import javax.net.ssl.HttpsURLConnection;
 import javax.xml.transform.OutputKeys;
@@ -49,7 +52,6 @@ public class ExpediusHL7LabHandler {
 	
 	private Document hl7labs;
 	private String fileName;
-	private String providerNumber;
 	private String savePath;
 	private String serviceName;
 	private String labType;
@@ -68,11 +70,7 @@ public class ExpediusHL7LabHandler {
 	public ExpediusHL7LabHandler(ExpediusProperties properties){
 		
 		if(properties != null) {
-			
-			if(properties.containsKey("SERVICE_NUMBER")) {
-				providerNumber = properties.getProperty("SERVICE_NUMBER").trim();
-			}
-			
+
 			if(properties.containsKey("SERVICE_NAME")) {
 				serviceName = properties.getProperty("SERVICE_NAME").trim();
 			}
@@ -147,10 +145,6 @@ public class ExpediusHL7LabHandler {
 		
 	}
 
-	public void setProviderNumber(String providerNumber) {
-		this.providerNumber = providerNumber;
-	}
-
 	public String getServiceName() {
 		return serviceName;
 	}
@@ -182,7 +176,6 @@ public class ExpediusHL7LabHandler {
 	public void reset() {	
 		setHl7labs(null);
 		setFileName(null);
-		setProviderNumber(null);
 	}
 
 	/**
@@ -204,9 +197,10 @@ public class ExpediusHL7LabHandler {
 			String savedFilePath = new String(filePath + fileName);
 			
 			logger.debug("HL7 lab file Path: " + savedFilePath);
-			logger.debug("Service Number (provider)" + providerNumber);
 			
-			String result = getWebserviceHandler().saveHL7(savedFilePath, providerNumber);
+			Path path = Paths.get(savedFilePath);
+			String fileContent = new String(Files.readAllBytes(path));
+			String result = getWebserviceHandler().saveHL7(fileName, fileContent);
 
 			/*
 			 *  {"success":0,"message":"Failed insert lab into DB (Likely duplicate lab): 
@@ -227,7 +221,6 @@ public class ExpediusHL7LabHandler {
 				logger.error("Oscar Web Service Error while persisting HL7 lab files. Server response File " + fileName + " Error Message: " + message);
 			}
 			
-
 		} else { 
 			logger.debug("Failed to locate saved file: " + fileName);				
 		}

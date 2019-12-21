@@ -3,9 +3,6 @@ package com.colcamex.www.handler;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.net.URL;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.security.KeyManagementException;
 import java.security.KeyStoreException;
 import java.security.NoSuchAlgorithmException;
@@ -58,9 +55,17 @@ public class OscarWSHandler {
 	private LoginWs loginWs;
 	private String username;
 	private String password;
+	private String providerNumber;
 
 	@SuppressWarnings("rawtypes")
 	public OscarWSHandler() {
+		
+		if(ExpediusProperties.getProperties().containsKey("SERVICE_NUMBER")) {
+			providerNumber = ExpediusProperties.getProperties().getProperty("SERVICE_NUMBER").trim();
+		}
+		if(providerNumber == null || providerNumber.isEmpty()) {
+			return;
+		}
 
 		System.setProperty( "com.sun.net.ssl.enableECC", "false");
 		
@@ -113,17 +118,12 @@ public class OscarWSHandler {
 		return null;
 	}
 
-	public String saveHL7( String savedFilePath, String providerNumber) throws IOException {
-		Path path = Paths.get(savedFilePath);
-		String fileContent = new String(Files.readAllBytes(path));
-		return saveHL7( path.getFileName().toString(), fileContent, providerNumber );
-	}
-
-	public String saveHL7( String savedFileName, String fileContent, String providerNumber ) {
+	public String saveHL7(String savedFileName, String fileContent) {
 		logger.debug("SaveHL7 " + savedFileName);
 		configureSSLConduit( hL7LabUploadWs );
 		injectAuthenticationToken( hL7LabUploadWs );
-		return hL7LabUploadWs.uploadExcelleris(savedFileName, fileContent, providerNumber);
+		logger.debug("Service Number (provider)" + providerNumber);
+		return hL7LabUploadWs.uploadExcelleris(savedFileName, fileContent, this.providerNumber);
 	}
 
 	/**
