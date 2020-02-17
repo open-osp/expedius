@@ -44,10 +44,10 @@ public class CertificateInstallAction extends HttpServlet {
     private static final int MAX_FILE_SIZE = 1024 * 1024 * 1; // 1MB
     private static final int REQUEST_SIZE = 1024 * 1024 * 50; // 50MB  
     
-    private ConfigurationBeanInterface configurationBean = null;
+//    private ConfigurationBeanInterface configurationBean = null;
     private ExpediusProperties properties;
-    private File storeFile;
-    private KeyCutter keyCutter;
+//    private File storeFile;
+//    private KeyCutter keyCutter;
  
     
     /**
@@ -60,10 +60,8 @@ public class CertificateInstallAction extends HttpServlet {
     
 	public void init(ServletConfig config) throws ServletException {
 		super.init(config);
-
         String propertiesPath = config.getServletContext().getInitParameter("ExpediusProperties");
-        properties = ExpediusProperties.getProperties(propertiesPath);// + "/" + ControllerAction.getPropertiesFileName());
-        //configurationBean = (ExcellerisConfigurationBean) BeanRetrieval.getBean("ExcellerisConfigurationBean");
+        properties = ExpediusProperties.getProperties(propertiesPath);
 	}
     
 	/**
@@ -81,7 +79,6 @@ public class CertificateInstallAction extends HttpServlet {
 		ExpediusControllerHandler controllerHandler = null;
 		
 		if(properties != null) {
-
 			controllerHandler = ExpediusControllerHandler.getInstance(properties);
 		}
 		
@@ -90,7 +87,9 @@ public class CertificateInstallAction extends HttpServlet {
 		String message = " ";
 		FileItem item = null;
 		String fieldName = null;
-
+		ConfigurationBeanInterface configurationBean = null;
+		File storeFile = null;
+		
         if (!ServletFileUpload.isMultipartContent(request)) {
         	forward(request, response, ERROR);
         	return;
@@ -132,7 +131,9 @@ public class CertificateInstallAction extends HttpServlet {
                 }
                 if(fieldName.equalsIgnoreCase("certificate")) {
     				configurationBean = controllerHandler.getConfigurationBean(item.getString() + "Bean");
+    				configurationBean.setCertificateInstalled(false);
                 }
+                
                 // processes fields that are not form fields
                 if (!item.isFormField()) {
                 	
@@ -154,11 +155,9 @@ public class CertificateInstallAction extends HttpServlet {
 	                    
                     } else {   
                     	
-                    	logger.error("Certificate store must be .pfx format");
-                    	
+                    	logger.error("Certificate must be .pfx format");                    	
                     	message = "Error: Certificate is not a .pfx file type.";
-                    	// request.setAttribute("message", "Error: Certificate is not a .pfx file type.");
-                    	
+
                     }                                     
                 } 
                 
@@ -171,25 +170,26 @@ public class CertificateInstallAction extends HttpServlet {
         	message = "File upload error: " + ex.getMessage();
         }
          
-        if((storeFile != null)&&(Encryption.testPassword(certPass, certPassConfirm))) {
+        if((storeFile != null)&&(Encryption.testPassword(certPass, certPassConfirm)) && configurationBean != null) {
         	
-	        if(cutKey(certPass)) { 
+	        KeyCutter key = cutKey(certPass, storeFile);
 	        	
-	        	configurationBean.setCertPath(new File(properties.getProperty("TRUSTSTORE_URL")));
+	        if(key.getError() == null)
+	        {
+	        	configurationBean.setCertPath(key.getTrustStorePath());
 	        	logger.debug("Truststore saved");
 	        	
-	        	configurationBean.setKeyPath(new File(properties.getProperty("KEYSTORE_URL")));
+	        	configurationBean.setKeyPath(key.getKeyStorePath());
 	        	logger.debug("Keystore saved");
-
-	        } else {
 	        	
-	        	configurationBean.setCertificateInstalled(false);
-	        	
-	        	message = keyCutter.getError();
-	
+	        	configurationBean.setCertificateInstalled(true);
 	        }
-	        
-
+	        else
+	        {
+	        	message = key.getError();
+	        	configurationBean.setCertificateInstalled(false);
+	        }
+	
 	        // delete key from temp directory
 	        if(storeFile.delete()) {    
 	        	logger.debug("Temp cache file removed");
@@ -217,25 +217,24 @@ public class CertificateInstallAction extends HttpServlet {
 		}
     }
 	
-	private boolean cutKey(String certPass) {
+	private KeyCutter cutKey(String certPass, File storeFile) {
 		
 		if(properties == null) {
 			logger.error("Cannot cut key, properties file is missing");
-			return false;
+			return null;
 		}
 
         // pass over to the key cutter. 
-        keyCutter = KeyCutter.getInstance();
+		KeyCutter keyCutter = KeyCutter.getInstance();
         keyCutter.setSourcePath(storeFile);
+        keyCutter.setStoreType(properties.getProperty("STORE_TYPE"));
         keyCutter.setCertificatePassword(certPass);
         keyCutter.setTrustStorePath(properties.getProperty("TRUSTSTORE_URL"));
         keyCutter.setKeyStorePath(properties.getProperty("KEYSTORE_URL"));
         keyCutter.setKeyStorePassword(properties.getProperty("STORE_PASS"));
         keyCutter.setKeyStoreAlias(properties.getProperty("KEYSTORE_ALIAS"));
         keyCutter.setTrustStoreAlias(properties.getProperty("TRUSTSTORE_ALIAS"));
-        keyCutter.setStoreType(properties.getProperty("STORE_TYPE"));
         return keyCutter.cutKey();
-	
 	}
 	
 	/**

@@ -11,8 +11,7 @@ import java.net.SocketTimeoutException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Iterator;
-import java.util.logging.Level;
-import java.util.logging.Logger;
+
 
 import javax.net.ssl.HttpsURLConnection;
 import javax.net.ssl.SSLSocketFactory;
@@ -20,6 +19,7 @@ import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 
+import org.apache.log4j.Logger;
 import org.w3c.dom.Document;
 import org.xml.sax.SAXException;
 
@@ -55,7 +55,7 @@ public class ExpediusConnect {
 		try {
 			documentBuilder = documentBuilderFactory.newDocumentBuilder();
 		} catch (ParserConfigurationException e) {
-			logger.log(Level.SEVERE, "Expedius connect failed to initialize document factory.");
+			logger.error("Expedius connect failed to initialize document factory.");
 		}
 		_init();
 	}
@@ -98,7 +98,7 @@ public class ExpediusConnect {
 		if( (httpsUri != null) && ( getSocketFactory() != null) ) {
 			connect(httpsUri, getSocketFactory());
 		} else {
-			logger.log(Level.WARNING, "The connection link or SSL socket is missing. Unable to connect.");
+			logger.warn( "The connection link or SSL socket is missing. Unable to connect.");
 		}
 	}
 	
@@ -108,7 +108,7 @@ public class ExpediusConnect {
 		if( (httpsUri != null) && ( getSocketFactory() != null) ) {
 			connect(httpsUri, getSocketFactory());
 		} else {
-			logger.log(Level.WARNING, "The connection link or SSL socket is missing. Unable to connect.");
+			logger.warn( "The connection link or SSL socket is missing. Unable to connect.");
 		}
 
 	}
@@ -120,7 +120,7 @@ public class ExpediusConnect {
 			try {
 				path = new URL(httpsUri);
 			} catch (MalformedURLException e) {
-				logger.log(Level.SEVERE, "The URI for connect is not correctly formed.", e);
+				logger.error( "The URI for connect is not correctly formed.", e);
 				setResponseCode(HttpsURLConnection.HTTP_INTERNAL_ERROR);
 			} finally {
 				if(path != null) {
@@ -163,7 +163,7 @@ public class ExpediusConnect {
 					}					
 					setHasResponse(Boolean.TRUE);
 				} catch (SAXException e) {
-					logger.log(Level.SEVERE, "Expedius connection manager failed to parse a server response during Connect.", e);
+					logger.error( "Expedius connection manager failed to parse a server response during Connect.", e);
 				} finally {			
 					close();		
 					logger.info("Expedius connection status is HttpsURLConnection [" + responseCode + "]");
@@ -202,7 +202,7 @@ public class ExpediusConnect {
 		try {	
 			path = new URL(query);
 		} catch (MalformedURLException e) {
-			logger.log(Level.SEVERE, "The URI for login is not correctly formed.", e);
+			logger.error( "The URI for login is not correctly formed.", e);
 			setResponseCode(HttpsURLConnection.HTTP_INTERNAL_ERROR);
 		} finally {
 			if(path != null) {
@@ -243,7 +243,7 @@ public class ExpediusConnect {
 					}
 					setHasResponse(Boolean.TRUE);
 				} catch (SAXException e) {
-					logger.log(Level.WARNING, "Expedius connection manager failed to parse a server response during Login.", e);
+					logger.warn( "Expedius connection manager failed to parse a server response during Login.", e);
 				} finally {
 					if(getResponseCode() == HttpsURLConnection.HTTP_OK) {
 						setLoggedIn(Boolean.TRUE);
@@ -271,7 +271,7 @@ public class ExpediusConnect {
 		try {
 			path = new URL(httpsUri);
 		} catch (MalformedURLException e) {
-			logger.log(Level.SEVERE, "The URI for fetch is not correctly formed.", e);
+			logger.error( "The URI for fetch is not correctly formed.", e);
 			setResponseCode(HttpsURLConnection.HTTP_INTERNAL_ERROR);
 		} finally {
 			if(path != null) {
@@ -304,7 +304,7 @@ public class ExpediusConnect {
 				}
 				setHasResponse(Boolean.TRUE);
 			} catch (SAXException e) {
-				logger.log(Level.WARNING, "Expedius connection manager failed to parse a server response during Fetch.", e);
+				logger.warn( "Expedius connection manager failed to parse a server response during Fetch.", e);
 			} finally {
 				close();
 			}
@@ -342,7 +342,7 @@ public class ExpediusConnect {
 		try{
 			path = new URL(httpsUri);
 		} catch (MalformedURLException e) {
-			logger.log(Level.SEVERE, "The URI for acknowledge is not correctly formed.", e);
+			logger.error( "The URI for acknowledge is not correctly formed.", e);
 			setResponseCode(HttpsURLConnection.HTTP_INTERNAL_ERROR);
 		} finally {
 			if(path != null) {
@@ -374,7 +374,7 @@ public class ExpediusConnect {
 				}
 				setHasResponse(Boolean.TRUE);
 			} catch (SAXException e) {
-				logger.log(Level.WARNING, "Expedius connection manager failed to parse a server response during Acknowledge.", e);
+				logger.warn( "Expedius connection manager failed to parse a server response during Acknowledge.", e);
 			} finally {
 				close();
 			}
@@ -396,7 +396,7 @@ public class ExpediusConnect {
 		try {	
 			path = new URL(httpsUri);
 		} catch (MalformedURLException e) {
-			logger.log(Level.SEVERE, "The URI for logout is not correctly formed.", e);
+			logger.error( "The URI for logout is not correctly formed.", e);
 			setResponseCode(HttpsURLConnection.HTTP_INTERNAL_ERROR);
 		} finally {
 			if(path != null) {
@@ -434,7 +434,7 @@ public class ExpediusConnect {
 				}
 				setHasResponse(Boolean.TRUE);
 			} catch (SAXException e) {
-				logger.log(Level.WARNING, "Expedius connection manager failed to parse a server response.", e);
+				logger.warn( "Expedius connection manager failed to parse a server response.", e);
 			} finally {
 				close();				
 				setLoggedIn(Boolean.FALSE);				
@@ -520,6 +520,8 @@ public class ExpediusConnect {
 	private InputStream execute(URL httpsUri) throws IOException {
 
 		if(httpsUri != null) {
+			
+			logger.info("Connecting to " + httpsUri.toString());
 
 			sconn = (HttpsURLConnection) httpsUri.openConnection();
 			sconn.setConnectTimeout(60000);

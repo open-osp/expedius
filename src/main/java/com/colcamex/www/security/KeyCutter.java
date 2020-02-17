@@ -29,18 +29,13 @@ import org.apache.log4j.Logger;
  * @author Dennis Warren
  * @Company Colcamex Resources
  * @Date Jun 3, 2012
- * @Comment 
- * 		If you prefer to do this at the command line via java's keytool
- *		keytool -importkeystore -srckeystore mypfxfile.pxf -srcstoretype pkcs12 
- *		-destkeystore clientcert.jks -deststoretype JKS
- *		
  */
 public class KeyCutter {
 	
-	private static Logger logger = Logger.getLogger("KeyCutter");
+	private static Logger logger = Logger.getLogger(KeyCutter.class);
 	
 	private static final String DEFAULT_IMPORT_STORE_TYPE = "pkcs12";
-	
+
 	private static KeyCutter instance = null;
 	private String error;
 	private File sourcePath;
@@ -52,21 +47,19 @@ public class KeyCutter {
 	private String trustStoreAlias;
 	private String storeType;
 	private String importStoreType;
-	private FileInputStream fis = null;
-	private FileOutputStream out = null;
-		
+
 	/**
-	 * Default Constructor.
-	 * 
+	 * Default Constructor
 	 */
 	protected KeyCutter() {
 		// default constructor.
 		setImportStoreType(DEFAULT_IMPORT_STORE_TYPE);
+		setStoreType(DEFAULT_IMPORT_STORE_TYPE);
+		setError(null);
 	}
 	
 	/**
 	 * Static constructor. Returns an instance of ExcellerisConnect.
-	 * 
 	 * @return
 	 */
 	public static KeyCutter getInstance() { 
@@ -80,27 +73,23 @@ public class KeyCutter {
 		return instance;
 	}
 
-	public boolean cutKey() {
+	public KeyCutter cutKey() {
 		
-		boolean success = false;
+		KeyStore keystore = null;
+		KeyStore truststore = null;
 		
-		try {
+		try(FileOutputStream keyStoreOut = new FileOutputStream(getKeyStorePath());
+				FileOutputStream trustStoreOut = new FileOutputStream(getTrustStorePath())) {
 			
-			KeyStore keystore = keyStore();
-			KeyStore truststore = trustStore();
+			keystore = keyStore();
+			truststore = trustStore();
 		
 			if(keystore != null) {
-				out = new FileOutputStream(getKeyStorePath());
-				keystore.store(out, getKeyStorePassword());
-				out.close();
-				success = true;
+				keystore.store(keyStoreOut, getKeyStorePassword());
 			} 
 
 			if(truststore != null) {
-				out = new FileOutputStream(getTrustStorePath());
-				truststore.store(out, getKeyStorePassword());
-				out.close();
-				success = true;
+				truststore.store(trustStoreOut, getKeyStorePassword());
 			} 
 			
 		} catch (FileNotFoundException e) {
@@ -108,10 +97,13 @@ public class KeyCutter {
 			setError("Certificate storage directory not found. Contact support.");
 		} catch (KeyStoreException e) {
 			logger.error("Exception: ",e);
+			setError("Contact support." + e.getMessage());
 		} catch (NoSuchAlgorithmException e) {
 			logger.error("Exception: ",e);
+			setError("Contact support." + e.getMessage());
 		} catch (CertificateException e) {
 			logger.error("Exception: ",e);
+			setError("Contact support." + e.getMessage());
 		} catch (IOException e) {
 			
 			if(e.getCause() instanceof javax.crypto.BadPaddingException) {
@@ -128,82 +120,75 @@ public class KeyCutter {
 			
 		} catch (NoSuchProviderException e) {
 			logger.error("Exception: ",e);
-		} finally {
-			if (fis != null) {
-				try {
-					fis.close();
-				} catch (IOException e) {
-					logger.error("Exception: ",e);
-				}
-			}
-			if (out != null) {
-				try {
-					out.close();
-				} catch (IOException e) {
-					logger.error("Exception: ",e);
-				}
-			}
-		}
-		
-		return success;
+			setError("Contact support." + e.getMessage());
+		} 
+
+		return instance;
 	}
 	
-	private KeyStore keyStore() 
-			throws KeyStoreException, 
+	private KeyStore keyStore() throws KeyStoreException, 
 			NoSuchAlgorithmException, CertificateException, 
 			IOException, UnrecoverableKeyException, NoSuchProviderException {
 		
-		fis = new FileInputStream(getSourcePath());
-		
 		KeyStore keystore = KeyStore.getInstance(getImportStoreType());
 		KeyStore jksKeystore = KeyStore.getInstance(getStoreType());
-
-		jksKeystore.load(null, null);
-		keystore.load(fis, getCertificatePassword());
-
-		fis.close();
-
-		Enumeration<String> aliases = keystore.aliases();
-		String alias = aliases.nextElement();
+		
+		try(FileInputStream fileInputStream = new FileInputStream(getSourcePath())) {
+			jksKeystore.load(null, null);
+			keystore.load(fileInputStream, getCertificatePassword());
+			Enumeration<String> aliases = keystore.aliases();
+			String alias = aliases.nextElement();
 			
-		if(aliases.hasMoreElements()) {
-			logger.debug("Found more than one alias: "+alias);
+			if(aliases.hasMoreElements()) {
+				logger.debug("Found more than one alias: "+alias);
+			}
+
+			Key key = keystore.getKey(alias, getCertificatePassword());
+			Certificate[] chain = keystore.getCertificateChain(alias);
+			
+			if(logger.isDebugEnabled())
+			{
+				Certificate cert = null;
+				for(int i = 0; chain.length > i; i++) {			
+					cert = chain[i];
+					logger.debug("Certificate type for number:" + i + " in chain " + cert.getType());
+					logger.debug("Public key algorithm for number:" + i + " in chain " +cert.getPublicKey().getAlgorithm());
+				}
+			}
+			if(key instanceof PrivateKey) {			
+				logger.debug("Installing private key");
+				jksKeystore.setKeyEntry(getKeyStoreAlias(), key, getKeyStorePassword(), chain);
+			}
 		}
 
-		Key key = keystore.getKey(alias, getCertificatePassword());
-		
-		Certificate[] chain = keystore.getCertificateChain(alias);
-		Certificate cert = null;
-		for(int i = 0; chain.length > i; i++) {			
-			cert = chain[i];
-			logger.debug("Certificate type for number:" + i + " in chain " + cert.getType());
-			logger.debug("Public key algorithm for number:" + i + " in chain " +cert.getPublicKey().getAlgorithm());
-		}
-		
-		if(key instanceof PrivateKey) {			
-			logger.debug("Installing private key");
-			jksKeystore.setKeyEntry(getKeyStoreAlias(), key, getKeyStorePassword(), chain);
-		}
-		
 		return jksKeystore;
 	}
 	
-	private KeyStore trustStore() 
-			throws KeyStoreException, NoSuchProviderException, 
-			NoSuchAlgorithmException, CertificateException, 
-			IOException {
+	private KeyStore trustStore() throws KeyStoreException, NoSuchProviderException, 
+			NoSuchAlgorithmException, CertificateException, IOException {
 		
 		KeyStore keyStore = KeyStore.getInstance(getImportStoreType());
 		KeyStore jksTrustStore = KeyStore.getInstance(getStoreType());
-		keyStore.load(new FileInputStream (getSourcePath()), getCertificatePassword());
-		jksTrustStore.load( null , null);
+		
+		try(FileInputStream fileInputStream = new FileInputStream (getSourcePath())){
+			keyStore.load(fileInputStream, getCertificatePassword());	
+			logger.debug("Installing CACert into trust store");
+		}
+		
+		/*
+		 * It's assumed here that a custom truststore was created during installation 
+		 * in order to trust the Oscar EMR cert. 
+		 */
+		try(FileInputStream fileInputStream = new FileInputStream (getTrustStorePath())){
+			jksTrustStore.load(fileInputStream , getCertificatePassword());
 
+		} catch(Exception e) {
+			jksTrustStore.load(null, null);
+		}
+		
 		Enumeration<String> aliases = keyStore.aliases();
 		String alias = aliases.nextElement();
 		Certificate[] cert = keyStore.getCertificateChain(alias);
-
-		logger.debug("Installing CACert into trust store");
-		
 		for(int i = 0; cert.length > i; i++) {
 			jksTrustStore.setCertificateEntry(getTrustStoreAlias()+i, cert[i]);
 		}
@@ -231,24 +216,24 @@ public class KeyCutter {
 		this.certificatePassword = certificatePassword;
 	}
 
-	private File getTrustStorePath() {
+	public File getTrustStorePath() {
 		return trustStorePath;
 	}
 	
 	public void setTrustStorePath(String trustStorePath) {
-		setTrustStorePath(new File(trustStorePath));
+		setTrustStorePath(new File(trustStorePath + "expedius_truststore." + getStoreType()));
 	}
 
 	public void setTrustStorePath(File trustStorePath) {
 		this.trustStorePath = trustStorePath;
 	}
 
-	private File getKeyStorePath() {
+	public File getKeyStorePath() {
 		return keyStorePath;
 	}
 	
 	public void setKeyStorePath(String keyStorePath) {
-		setKeyStorePath(new File(keyStorePath));
+		setKeyStorePath(new File(keyStorePath + "expedius_keystore." + getStoreType()));
 	}
 
 	public void setKeyStorePath(File keyStorePath) {
@@ -288,7 +273,7 @@ public class KeyCutter {
 	}
 
 	public String getError() {
-		return error;
+		return this.error;
 	}
 
 	public void setError(String error) {

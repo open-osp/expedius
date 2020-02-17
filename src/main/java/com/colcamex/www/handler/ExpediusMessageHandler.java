@@ -85,8 +85,7 @@ public class ExpediusMessageHandler {
 	}
 
 	/**
-	 * The controller bean is a serializable bean that 
-	 * contains all persisted settings and 
+	 * The controller bean contains all persisted settings and 
 	 * messages for Expedius.
 	 * @param controllerBean
 	 */

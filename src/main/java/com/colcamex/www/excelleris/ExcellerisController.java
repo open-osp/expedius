@@ -196,7 +196,8 @@ public class ExcellerisController extends AbstractConnectionController {
 					if(result.equalsIgnoreCase(RESPONSE_ACCESSGRANTED)) {
 						success = Boolean.TRUE;
 					} else {
-						logger.info("Failed to log into Excelleris.");
+						handleError("Failure to log into Excelleris: " + result, null, ERROR, false);
+						logger.error("Failed to log into Excelleris.");
 					}					
 				}								
 			}
