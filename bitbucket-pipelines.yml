@@ -21,7 +21,7 @@ pipelines:
              variables:
                BITBUCKET_USERNAME: 'dwarren@colcamex.com'
                BITBUCKET_APP_PASSWORD: 'L3mD7TpjgX'
-               FILENAME: 'Expedius'
+               FILENAME: 'Expedius-4.12.19.war'
                # ACCOUNT: '<string>' # Optional
                # REPOSITORY: '<string>' # Optional
                # DEBUG: '<boolean>' # Optional
