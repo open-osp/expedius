@@ -12,3 +12,9 @@ pipelines:
           - maven
         script: # Modify the commands below to build your repository.
           - mvn -B -Dmaven.test.skip=true package # -B batch mode makes Maven less verbose
+    - step:
+        name: Deploy to Release
+        deployment: Current-Release
+        # trigger: manual  # Uncomment to make this a manual deployment.
+        script:
+          - echo "Deploying Release"
