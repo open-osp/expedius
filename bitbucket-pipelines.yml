@@ -13,16 +13,5 @@ pipelines:
         script: # Modify the commands below to build your repository.
           - mvn -B -Dmaven.test.skip=true package # -B batch mode makes Maven less verbose
     - step:
-        name: Deploy to Release
-        deployment: Current-Release
-        # trigger: manual  # Uncomment to make this a manual deployment.
         script:
-           - pipe: atlassian/bitbucket-upload-file:0.1.3
-             variables:
-               BITBUCKET_USERNAME: 'dwarren@colcamex.com'
-               BITBUCKET_APP_PASSWORD: 'L3mD7TpjgX'
-               FILENAME: '**Expedius-4.12.19.war'
-               # ACCOUNT: '<string>' # Optional
-               # REPOSITORY: '<string>' # Optional
-               # DEBUG: '<boolean>' # Optional
-
+          - curl -X POST --user "${BB_AUTH_STRING}" "https://api.bitbucket.org/2.0/repositories/${BITBUCKET_REPO_OWNER}/${BITBUCKET_REPO_SLUG}/downloads" --form files=@"target/Expedius-4.12.19.war"
