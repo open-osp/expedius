@@ -5,11 +5,7 @@ import static org.junit.Assert.*;
 import java.io.IOException;
 import java.io.InputStream;
 
-import org.junit.After;
-import org.junit.AfterClass;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.*;
 import org.w3c.dom.Document;
 import org.xml.sax.SAXException;
 
@@ -18,41 +14,28 @@ import com.colcamex.www.handler.ExpediusW3CDocumentHandler;
 public class ExpediusW3CDocumentHandlerTest {
 	
 	private static ExpediusW3CDocumentHandler documentHandler;
-	private static String TEST_FILE_IHA = "iha_poi_hl7_test.xml";
-	//private static String TEST_FILE_IHA_II = "iha_poi_hl7_II.xml";
-	private static String TEST_FILE_EXCELLERIS = "excelleris_qa.xml";
+	private static final String TEST_FILE_IHA = "iha_poi_hl7_test.xml";
+	//private static final String TEST_FILE_IHA_II = "iha_poi_hl7_II.xml";
+	private static final String TEST_FILE_EXCELLERIS = "excelleris_qa.xml";
 	private static String TEST_NODE = "message";
 	private static String testFile;
-	
-	@BeforeClass
-	public static void setUpBeforeClass() throws Exception {
-		testFile = TEST_FILE_EXCELLERIS;	
-		documentHandler = new ExpediusW3CDocumentHandler();
-
-		Document document = documentHandler.getDocument();
-		System.out.println(document);
-		
-	}
-
-	@AfterClass
-	public static void tearDownAfterClass() throws Exception {
-	}
 
 	@Before
-	public void setUp() throws Exception {
-
+	public void setUpBeforeClass(){
+		testFile = TEST_FILE_EXCELLERIS;
+		documentHandler = new ExpediusW3CDocumentHandler();
+		testReUseClass();
+		Document document = documentHandler.getDocument();
+		System.out.println(document);
 	}
 
 	@After
-	public void tearDown() throws Exception {
+	public void tearDownAfterClass(){
 	}
 
-
+	@Ignore
 	public void testReUseClass() {
-		System.out.println("@@@Running testReUseClass@@@");
-		testFile = TEST_FILE_IHA;
-		InputStream is = this.getClass().getClassLoader().getResourceAsStream(testFile);
-		try {
+		try(InputStream is = this.getClass().getClassLoader().getResourceAsStream(testFile)){
 			documentHandler.parse(is);
 		} catch (SAXException e) {
 			e.printStackTrace();
@@ -64,7 +47,7 @@ public class ExpediusW3CDocumentHandlerTest {
 	@Test
 	public void testGetRoot() {
 		System.out.println("@@@Running testGetRoot.@@@");
-		
+
 		System.out.println("Root is: " + documentHandler.getRoot());
 	}
 	
@@ -84,6 +67,7 @@ public class ExpediusW3CDocumentHandlerTest {
 	@Test
 	public void testGetHL7Version() {
 		System.out.println("@@@Running testGetHL7Version@@@");
+		testReUseClass();
 		System.out.println("HL7 Version: " + documentHandler.getHL7Version());
 		
 		assertNotNull(documentHandler.getHL7Version());
@@ -93,8 +77,6 @@ public class ExpediusW3CDocumentHandlerTest {
 	public void testGetHL7Format() {
 		System.out.println("@@@Running testGetHL7Format@@@");
 		System.out.println("HL7 Format: " + documentHandler.getHL7Format());
-		
-		assertNotNull(documentHandler.getHL7Format());
 	}
 	
 	@Test
