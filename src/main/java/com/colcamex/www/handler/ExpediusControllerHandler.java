@@ -9,7 +9,9 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.concurrent.ScheduledFuture;
-import org.apache.log4j.Logger;
+
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import com.colcamex.www.bean.ConfigurationBeanInterface;
 import com.colcamex.www.bean.ControllerBean;
 import com.colcamex.www.excelleris.ExcellerisConfigurationBean;
@@ -19,7 +21,6 @@ import com.colcamex.www.http.AbstractConnectionController;
 import com.colcamex.www.iha.IhaConfigurationBean;
 import com.colcamex.www.iha.IhaController;
 import com.colcamex.www.util.BeanRetrieval;
-import com.colcamex.www.util.ExpediusLog;
 import com.colcamex.www.util.ExpediusProperties;
 
 /**
@@ -32,7 +33,7 @@ import com.colcamex.www.util.ExpediusProperties;
  */
 public class ExpediusControllerHandler {
 	
-	public static Logger logger = Logger.getLogger(ExpediusControllerHandler.class);
+	public static Logger logger = LogManager.getLogger(ExpediusControllerHandler.class);
 
 	public static final String IHA_CONFIGURATION_NAME = "IhaConfigurationBean";
 	public static final String EXCELLERIS_CONFIGURATION_NAME = "ExcellerisConfigurationBean";
@@ -205,7 +206,6 @@ public class ExpediusControllerHandler {
 	
 	/**
 	 * Stop the timer
-	 * @param pollTimer
 	 */
 	@SuppressWarnings("rawtypes")
 	public void stop() {
@@ -227,7 +227,6 @@ public class ExpediusControllerHandler {
     
 	/**
 	 * Start the timer to execute timed lab downloads
-	 * @param pollTimer
 	 */
     public void start() {
     	
@@ -354,55 +353,55 @@ public class ExpediusControllerHandler {
 	 * Creates a log that is presentable to the user.
 	 * @param properties
 	 */
-	public void createExpediusLog(ExpediusProperties properties) {
-		
-    	String logPath = null; 
-    	String htmlUserLogPath = null;
-    	String expediusContext = null;
-    			
-		if(properties.containsKey("LOG_PATH")) {
-    		logPath = properties.getProperty("LOG_PATH");
-		}
-		
-    	if(properties.containsKey("TOMCAT_ROOT")) {
-    		htmlUserLogPath = properties.getProperty("TOMCAT_ROOT");
-    	}
-    	 
-    	if(properties.containsKey("CONTEXT_PATH")) {
-    		expediusContext = properties.getProperty("CONTEXT_PATH");
-    	}
-    	
-    	if(logPath != null) {
-    		logPath = logPath.trim();
-    		if(! logPath.endsWith(File.separator)) {
-    			logPath = logPath + File.separator;
-    		}
-    	}
-    	
-    	if (expediusContext != null) {
-    		expediusContext = expediusContext.trim();
-    		if(! expediusContext.startsWith(File.separator)) {
-    			expediusContext = File.separator + expediusContext;
-    		}
-    	}
-    	
-    	if(htmlUserLogPath != null) {
-    		htmlUserLogPath = htmlUserLogPath.trim();        		
-    		htmlUserLogPath = htmlUserLogPath + expediusContext;
-    		if(! htmlUserLogPath.endsWith(File.separator)) {
-    			htmlUserLogPath = htmlUserLogPath + File.separator;
-    		}
-    	}
-
-		// logging and data sources.
-		ExpediusLog.setLogPath(logPath);
-		logger.info("Path for Expedius logging: "+logPath);
-		ExpediusLog.sethtmlLogPath(htmlUserLogPath);
-	  	logger.info("Path for HTML user log: "+htmlUserLogPath);
-	  	
-	  	getMessageHandler().getControllerBean().setHtmlLogPath( ExpediusLog.getHtmlLogName() );
-
-	}
+//	public void createExpediusLog(ExpediusProperties properties) {
+//
+////    	String logPath = null;
+//    	String htmlUserLogPath = null;
+//    	String expediusContext = null;
+//
+////		if(properties.containsKey("LOG_PATH")) {
+////    		logPath = properties.getProperty("LOG_PATH");
+////		}
+//
+//    	if(properties.containsKey("TOMCAT_ROOT")) {
+//    		htmlUserLogPath = properties.getProperty("TOMCAT_ROOT");
+//    	}
+//
+//    	if(properties.containsKey("CONTEXT_PATH")) {
+//    		expediusContext = properties.getProperty("CONTEXT_PATH");
+//    	}
+//
+////    	if(logPath != null) {
+////    		logPath = logPath.trim();
+////    		if(! logPath.endsWith(File.separator)) {
+////    			logPath = logPath + File.separator;
+////    		}
+////    	}
+//
+//    	if (expediusContext != null) {
+//    		expediusContext = expediusContext.trim();
+//    		if(! expediusContext.startsWith(File.separator)) {
+//    			expediusContext = File.separator + expediusContext;
+//    		}
+//    	}
+//
+////    	if(htmlUserLogPath != null) {
+////    		htmlUserLogPath = htmlUserLogPath.trim();
+////    		htmlUserLogPath = htmlUserLogPath + expediusContext;
+////    		if(! htmlUserLogPath.endsWith(File.separator)) {
+////    			htmlUserLogPath = htmlUserLogPath + File.separator;
+////    		}
+////    	}
+//
+//		// logging and data sources.
+////		ExpediusLog.setLogPath(logPath);
+////		logger.info("Path for Expedius logging: "+logPath);
+////		ExpediusLog.sethtmlLogPath(htmlUserLogPath);
+////	  	logger.info("Path for HTML user log: "+htmlUserLogPath);
+//
+//	  	getMessageHandler().getControllerBean().setHtmlLogPath( ExpediusLog.getHtmlLogName() );
+//
+//	}
 	
 	private boolean checkFirstRun(ExpediusProperties properties) {
 		

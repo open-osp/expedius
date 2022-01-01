@@ -5,7 +5,8 @@ import java.util.concurrent.ScheduledExecutorService;
 import javax.servlet.ServletContextEvent;
 import javax.servlet.ServletContextListener;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import com.colcamex.www.handler.ExpediusControllerHandler;
 import com.colcamex.www.handler.PollTimer;
@@ -23,7 +24,7 @@ import com.colcamex.www.util.ExpediusProperties;
  */
 public class ExpediusStartupListener implements ServletContextListener {
 
-	public static Logger logger = Logger.getLogger("ExpediusStartupListener");
+	public static Logger logger = LogManager.getLogger("ExpediusStartupListener");
 
 	private static ExpediusProperties properties;
 	private static String vendor, version;

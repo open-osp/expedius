@@ -19,7 +19,8 @@ import org.apache.cxf.configuration.jsse.TLSClientParameters;
 import org.apache.cxf.frontend.ClientProxy;
 
 import org.apache.cxf.transport.http.HTTPConduit;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.oscarehr.ws.LabUploadWs;
 import org.oscarehr.ws.LabUploadWsService;
 import org.oscarehr.ws.LoginResultTransfer2;
@@ -39,7 +40,7 @@ import com.colcamex.www.util.ExpediusProperties;
  */
 public class OscarWSHandler {
 
-	public static Logger logger = Logger.getLogger( OscarWSHandler.class );
+	public static Logger logger = LogManager.getLogger( OscarWSHandler.class );
 
 	private final static String LOGIN_SERVICE = ExpediusProperties.getProperties().getProperty("EMR_LOGIN_ENDPOINT").trim();
 	private final static String LAB_UPLOAD_SERVICE = ExpediusProperties.getProperties().getProperty("EMR_LAB_UPLOAD_ENDPOINT").trim();

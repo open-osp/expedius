@@ -22,7 +22,9 @@ import java.security.PrivateKey;
 import java.security.UnrecoverableKeyException;
 import java.security.cert.CertificateException;
 import java.util.Enumeration;
-import org.apache.log4j.Logger;
+
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 /**
  * 
@@ -37,7 +39,7 @@ import org.apache.log4j.Logger;
  */
 public class KeyCutter {
 	
-	private static Logger logger = Logger.getLogger("KeyCutter");
+	private static Logger logger = LogManager.getLogger("KeyCutter");
 	
 	private static final String DEFAULT_IMPORT_STORE_TYPE = "pkcs12";
 	

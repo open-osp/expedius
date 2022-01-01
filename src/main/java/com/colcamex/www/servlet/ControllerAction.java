@@ -10,7 +10,8 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import com.colcamex.www.handler.ExpediusControllerHandler;
 import com.colcamex.www.util.ExpediusProperties;
@@ -18,7 +19,7 @@ import com.colcamex.www.util.FilterUtility;
 
 public class ControllerAction extends HttpServlet {//implements ServletContextListener {
 	
-	public static Logger logger = Logger.getLogger(ControllerAction.class);
+	public static Logger logger = LogManager.getLogger(ControllerAction.class);
 	private static final long serialVersionUID = 1L;
 	private static ExpediusProperties properties;
 	private String vendor, version;

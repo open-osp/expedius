@@ -2,14 +2,14 @@ package com.colcamex.www.util;
 
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.Serializable;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import com.colcamex.www.bean.ConfigurationBeanInterface;
 import com.colcamex.www.bean.ControllerBean;
@@ -26,7 +26,7 @@ import com.colcamex.www.security.Encryption;
  */
 public class BeanRetrieval implements Serializable {
 
-	public static Logger logger = Logger.getLogger("BeanRetrieval");
+	public static Logger logger = LogManager.getLogger("BeanRetrieval");
 	
 	private static String SAVE_PATH = "/var/lib/expedius/.appdata/";
 	private static final long serialVersionUID = 1L;
@@ -50,7 +50,7 @@ public class BeanRetrieval implements Serializable {
 		return serialVersionUID;
 	}
 	
-	public static Object getBean(String beanName) throws FileNotFoundException, IOException, ClassNotFoundException {
+	public static Object getBean(String beanName) throws IOException, ClassNotFoundException {
 		
 		Object bean = null;
 	
@@ -76,18 +76,18 @@ public class BeanRetrieval implements Serializable {
 		return file.exists(); 
 	}
 
-	public static boolean setBean(ConfigurationBeanInterface configurationBean) throws FileNotFoundException, IOException {
+	public static boolean setBean(ConfigurationBeanInterface configurationBean) throws IOException {
 		return setBean((Object) configurationBean);
 	}
 	
-	public static boolean setBean(ControllerBean controllerBean) throws FileNotFoundException, IOException {
+	public static boolean setBean(ControllerBean controllerBean) throws IOException {
 		return setBean((Object) controllerBean);
 	}
 	
-	private static boolean setBean(Object bean) throws FileNotFoundException, IOException {
+	private static boolean setBean(Object bean) throws IOException {
 		boolean success = false;		
-		String simpleName = null;
-		String beanName = null;
+		String simpleName;
+		String beanName;
 		
 		if(bean != null) {
 			
