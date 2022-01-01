@@ -1,6 +1,5 @@
 package com.colcamex.www.handler;
 
-import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -35,9 +34,9 @@ public class ExpediusControllerHandler {
 	
 	public static Logger logger = LogManager.getLogger(ExpediusControllerHandler.class);
 
-	public static final String IHA_CONFIGURATION_NAME = "IhaConfigurationBean";
-	public static final String EXCELLERIS_CONFIGURATION_NAME = "ExcellerisConfigurationBean";
-	public static final String CONTROLLER_NAME = "ControllerBean";
+	public static final Class<IhaConfigurationBean> IHA_CONFIGURATION_NAME = IhaConfigurationBean.class;
+	public static final Class<ExcellerisConfigurationBean> EXCELLERIS_CONFIGURATION_NAME = ExcellerisConfigurationBean.class;
+	public static final Class<ControllerBean> CONTROLLER_NAME = ControllerBean.class;
 	
 	private ControllerBean controllerBean;
 	private HashMap<String, ConfigurationBeanInterface> configurationBeans;	// contain all the settings for each service.
@@ -129,11 +128,11 @@ public class ExpediusControllerHandler {
 
 		if(excellerison) {
 			arraysize = arraysize + 1;
-			getConfigurationBeans().put(EXCELLERIS_CONFIGURATION_NAME, ( ConfigurationBeanInterface ) getBean(EXCELLERIS_CONFIGURATION_NAME) );
+			getConfigurationBeans().put(EXCELLERIS_CONFIGURATION_NAME.getSimpleName(), getBean(EXCELLERIS_CONFIGURATION_NAME) );
 		}
 		if(ihapoion) {
 			arraysize = arraysize + 1;
-			getConfigurationBeans().put(IHA_CONFIGURATION_NAME, ( ConfigurationBeanInterface ) getBean(IHA_CONFIGURATION_NAME) );
+			getConfigurationBeans().put(IHA_CONFIGURATION_NAME.getSimpleName(), getBean(IHA_CONFIGURATION_NAME) );
 		}
 
 		// don't forget to increase the array size when adding new services.
@@ -347,66 +346,10 @@ public class ExpediusControllerHandler {
     	return Boolean.TRUE;
 	}
 
-	
-	
-	/**
-	 * Creates a log that is presentable to the user.
-	 * @param properties
-	 */
-//	public void createExpediusLog(ExpediusProperties properties) {
-//
-////    	String logPath = null;
-//    	String htmlUserLogPath = null;
-//    	String expediusContext = null;
-//
-////		if(properties.containsKey("LOG_PATH")) {
-////    		logPath = properties.getProperty("LOG_PATH");
-////		}
-//
-//    	if(properties.containsKey("TOMCAT_ROOT")) {
-//    		htmlUserLogPath = properties.getProperty("TOMCAT_ROOT");
-//    	}
-//
-//    	if(properties.containsKey("CONTEXT_PATH")) {
-//    		expediusContext = properties.getProperty("CONTEXT_PATH");
-//    	}
-//
-////    	if(logPath != null) {
-////    		logPath = logPath.trim();
-////    		if(! logPath.endsWith(File.separator)) {
-////    			logPath = logPath + File.separator;
-////    		}
-////    	}
-//
-//    	if (expediusContext != null) {
-//    		expediusContext = expediusContext.trim();
-//    		if(! expediusContext.startsWith(File.separator)) {
-//    			expediusContext = File.separator + expediusContext;
-//    		}
-//    	}
-//
-////    	if(htmlUserLogPath != null) {
-////    		htmlUserLogPath = htmlUserLogPath.trim();
-////    		htmlUserLogPath = htmlUserLogPath + expediusContext;
-////    		if(! htmlUserLogPath.endsWith(File.separator)) {
-////    			htmlUserLogPath = htmlUserLogPath + File.separator;
-////    		}
-////    	}
-//
-//		// logging and data sources.
-////		ExpediusLog.setLogPath(logPath);
-////		logger.info("Path for Expedius logging: "+logPath);
-////		ExpediusLog.sethtmlLogPath(htmlUserLogPath);
-////	  	logger.info("Path for HTML user log: "+htmlUserLogPath);
-//
-//	  	getMessageHandler().getControllerBean().setHtmlLogPath( ExpediusLog.getHtmlLogName() );
-//
-//	}
-	
 	private boolean checkFirstRun(ExpediusProperties properties) {
 		
 		boolean status = true;
-		String dataSavePath = null;
+		String dataSavePath;
 		ArrayList<Object> beans = new ArrayList<Object>();
 
 		if(properties.containsKey("DATA_PATH")) {		
@@ -415,7 +358,7 @@ public class ExpediusControllerHandler {
 		} 
 		
 
-		if( ! BeanRetrieval.checkBean(CONTROLLER_NAME) ) {
+		if( ! BeanRetrieval.checkBean(CONTROLLER_NAME.getSimpleName()) ) {
 			logger.info("First run detected. Creating new ControllerBean.");
 			
 			ControllerBean controllerBean = new ControllerBean();			
@@ -426,25 +369,33 @@ public class ExpediusControllerHandler {
 			beans.add(controllerBean);
 
 		}
-		
-		if( ! BeanRetrieval.checkBean(EXCELLERIS_CONFIGURATION_NAME) && isExcellerison() ) {
-			logger.info("First run detected. Creating new ExcellerisConfigurationBean.");
-			
-			ConfigurationBeanInterface excellerisConfigurationBean = new ExcellerisConfigurationBean();		
-			excellerisConfigurationBean.initialize(
-				properties.getProperty("EXCELLERIS_URI"),	
-				properties.getProperty("REQUEST_NEW"),
-				properties.getProperty("LOGIN"),
-				properties.getProperty("LOGOUT"),
-				properties.getProperty("ACK_POSITIVE")
-			);	
-			excellerisConfigurationBean.setServiceName("excelleris");
-			
-			beans.add(excellerisConfigurationBean);
 
+		if(isExcellerison()) {
+			try {
+				ConfigurationBeanInterface excellerisConfigurationBean;
+				if (!BeanRetrieval.checkBean(EXCELLERIS_CONFIGURATION_NAME.getSimpleName())) {
+					logger.info("First run detected. Creating new ExcellerisConfigurationBean.");
+
+					excellerisConfigurationBean = new ExcellerisConfigurationBean();
+				} else {
+					excellerisConfigurationBean = BeanRetrieval.getBean(EXCELLERIS_CONFIGURATION_NAME);
+				}
+				excellerisConfigurationBean.initialize(
+						properties.getProperty("EXCELLERIS_URI"),
+						properties.getProperty("REQUEST_NEW"),
+						properties.getProperty("LOGIN"),
+						properties.getProperty("LOGOUT"),
+						properties.getProperty("ACK_POSITIVE")
+				);
+				excellerisConfigurationBean.setServiceName("excelleris");
+
+				beans.add(excellerisConfigurationBean);
+			} catch (Exception e) {
+
+			}
 		}
 		
-		if( ! BeanRetrieval.checkBean(IHA_CONFIGURATION_NAME)  && isIhapoion() ) {
+		if( ! BeanRetrieval.checkBean(IHA_CONFIGURATION_NAME.getSimpleName())  && isIhapoion() ) {
 			logger.info("First run detected. Creating new IhaConfigurationBean.");
 			
 			ConfigurationBeanInterface ihaConfigurationBean = new IhaConfigurationBean();		
@@ -472,21 +423,20 @@ public class ExpediusControllerHandler {
 		
 		return status;
 	}
-	
-	private Object getBean(String beanName) {
-		Object bean = null;
-		
+
+	private <T> T getBean(Class<?> beanName) {
+		T bean = null;
+
 		try {
-			bean = BeanRetrieval.getBean(beanName);
+			bean = (T) BeanRetrieval.getBean(beanName);
 		} catch (FileNotFoundException e) {
 			logger.fatal("Bean retrieval error.", e);
-
 		} catch (IOException e) {
 			logger.fatal("Bean retrieval error.", e);
 		} catch (ClassNotFoundException e) {
 			logger.fatal("Bean retrieval error.", e);
 		}
-		
+
 		return bean;
 	}
 	
@@ -498,7 +448,7 @@ public class ExpediusControllerHandler {
 	 * Depends on utility BeanRetrieval.
 	 * @param beanName
 	 */
-	public void setControllerBean(String beanName) {		
+	public void setControllerBean(Class<?> beanName) {
 		setControllerBean( (ControllerBean) getBean(beanName));		
 	}
 
@@ -512,6 +462,10 @@ public class ExpediusControllerHandler {
 
 	public void setProperties(ExpediusProperties properties) {
 		this.properties = properties;
+	}
+
+	public ConfigurationBeanInterface getConfigurationBean(Class<?> beanName) {
+		return getConfigurationBean(beanName.getSimpleName());
 	}
 
 	public ConfigurationBeanInterface getConfigurationBean(String beanName) {

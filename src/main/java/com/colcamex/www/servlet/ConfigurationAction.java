@@ -53,12 +53,7 @@ public class ConfigurationAction extends HttpServlet {
     	String message = " "; 
     	String userName = null;
 		String password = null;
-		String passwordConfirm = null; 
-//		String servicePath = "";
-//		String loginPath = "";
-//		String fetchPath = "";
-//		String acknowledgePath = "";
-//		String logoutPath = "";
+		String passwordConfirm = null;
 				
     	String loginForm = FilterUtility.filter(request.getParameter("login"));
     	String config = FilterUtility.filter(request.getParameter("config"));
@@ -98,50 +93,6 @@ public class ConfigurationAction extends HttpServlet {
     			message = "Passwords are null";
     		}  		
     	} 
-    	
-//
-//    	if( config != null) {
-//
-//    		configurationBean = controllerHandler.getConfigurationBean(config + "Bean");
-//    		if(request.getParameterMap().containsKey("path")) {
-//	    		servicePath = request.getParameter("path");
-//	    		if(! configurationBean.getServicePath().equalsIgnoreCase(servicePath)) {
-//	    			configurationBean.setServicePath(servicePath.trim());
-//	    		}
-//    		}
-//
-//    		if(request.getParameterMap().containsKey("loginPath")) {
-//	    		loginPath = request.getParameter("loginPath");
-//	    		if(! configurationBean.getLoginPath().equalsIgnoreCase(loginPath)) {
-//	    			configurationBean.setLoginPath(loginPath.trim());
-//	    		}
-//    		}
-//
-//    		if(request.getParameterMap().containsKey("fetchPath")) {
-//	    		fetchPath = request.getParameter("fetchPath");
-//				if(! configurationBean.getFetchPath().equalsIgnoreCase(fetchPath)) {
-//					configurationBean.setFetchPath(fetchPath.trim());
-//				}
-//    		}
-//
-//    		if(request.getParameterMap().containsKey("acknowledgePath")) {
-//	    		acknowledgePath = request.getParameter("acknowledgePath");
-//				if(! configurationBean.getAcknowledgePath().equalsIgnoreCase(acknowledgePath)) {
-//					configurationBean.setAcknowledgePath(acknowledgePath.trim());
-//				}
-//    		}
-//
-//    		if(request.getParameterMap().containsKey("logoutPath")) {
-//	    		logoutPath = request.getParameter("logoutPath");
-//				if(! configurationBean.getLogoutPath().equalsIgnoreCase(logoutPath)) {
-//					configurationBean.setLogoutPath(logoutPath.trim());
-//				}
-//    		}
-//
-//    		request.setAttribute(config + "_linkActionMessage", "Links updated successfully");
-//
-//    	}
-    	
 
     	controllerHandler.persistConfigurationBeans();
 

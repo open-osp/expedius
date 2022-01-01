@@ -1,11 +1,8 @@
+<jsp:useBean id="excellerisConfigurationBean" scope="request" type="com.colcamex.www.bean.ConfigurationBeanInterface"/>
 <%@ page language="java" contentType="text/html; charset=ISO-8859-1"
     pageEncoding="ISO-8859-1"%>
 
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
-
-<script type="text/javascript">
-	var htmlLogPath = "<c:out value='${excellerisConfigurationBean.userLogPath}' />" ;
-</script>
 	
 <div id="excellerisConfiguration" class="tab" >
 
@@ -21,9 +18,7 @@
 		<legend>Excelleris Login Information</legend>
 			
 		<img src="${ pageContext.request.contextPath }/assets/question.jpg" width="18px" height="18px"
-			id="loginInfo"
-			name="loginInfo" 
-			title="This user-name and password must match the user-name and password issued from Excelleris." />	
+			id="loginInfo" title="This user-name and password must match the user-name and password issued from Excelleris." />
 			
 		
 		<table>
@@ -120,9 +115,7 @@
 			<legend>Excelleris Links</legend>
 			
 		<img src="${ pageContext.request.contextPath }/assets/question.jpg" width="18px" height="18px"
-			id="linkInfo"
-			name="linkInfo" 
-			title="Only change these links when instructed by Excelleris. If the autodownloader is not working, these links can be used for a manual lab download." />
+			id="linkInfo" title="Only change these links when instructed by Excelleris. If the autodownloader is not working, these links can be used for a manual lab download." />
 			
 		<dl>
 			<dt>

@@ -34,7 +34,7 @@ import org.apache.logging.log4j.Logger;
  */
 public class KeyCutter {
 
-	private static Logger logger = LogManager.getLogger("KeyCutter");
+	private static final Logger logger = LogManager.getLogger("KeyCutter");
 	private static final String DEFAULT_IMPORT_STORE_TYPE = "pkcs12";
 
 	private static KeyCutter instance = null;
@@ -61,7 +61,6 @@ public class KeyCutter {
 	
 	/**
 	 * Static constructor. Returns an instance of ExcellerisConnect.
-	 * @return
 	 */
 	public static KeyCutter getInstance() { 
 		// instantiate
@@ -76,8 +75,8 @@ public class KeyCutter {
 
 	public KeyCutter cutKey() {
 		
-		KeyStore keystore = null;
-		KeyStore truststore = null;
+		KeyStore keystore;
+		KeyStore truststore;
 		
 		try(FileOutputStream keyStoreOut = new FileOutputStream(getKeyStorePath());
 				FileOutputStream trustStoreOut = new FileOutputStream(getTrustStorePath())) {
@@ -149,7 +148,7 @@ public class KeyCutter {
 			
 			if(logger.isDebugEnabled())
 			{
-				Certificate cert = null;
+				Certificate cert;
 				for(int i = 0; chain.length > i; i++) {			
 					cert = chain[i];
 					logger.debug("Certificate type for number:" + i + " in chain " + cert.getType());

@@ -2,6 +2,7 @@ package com.colcamex.www;
 
 import static org.junit.Assert.*;
 
+import com.colcamex.www.iha.IhaConfigurationBean;
 import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Before;
@@ -33,7 +34,7 @@ public class IhaControllerTest {
 		if(properties != null) {
 			ExpediusW3CDocumentHandler documentHandler = new ExpediusW3CDocumentHandler();
 			ExpediusConnect connection = ExpediusConnect.getInstance(documentHandler);
-			configBean = (ConfigurationBeanInterface) BeanRetrieval.getBean("IhaConfigurationBean");
+			configBean = BeanRetrieval.getBean(IhaConfigurationBean.class);
 			ihaController = new IhaController(configBean);
 			ihaController.setLabHandler(new ExpediusHL7LabHandler(properties));
 			ihaController.setDocumentHandler(documentHandler);

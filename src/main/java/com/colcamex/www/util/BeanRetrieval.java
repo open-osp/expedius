@@ -8,12 +8,16 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.Serializable;
 
+import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.text.WordUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import com.colcamex.www.bean.ConfigurationBeanInterface;
 import com.colcamex.www.bean.ControllerBean;
 import com.colcamex.www.security.Encryption;
+import org.springframework.beans.factory.ListableBeanFactory;
+import org.springframework.beans.factory.NoSuchBeanDefinitionException;
 
 
 /**
@@ -49,25 +53,25 @@ public class BeanRetrieval implements Serializable {
 	public static long getSerialversionuid() {
 		return serialVersionUID;
 	}
-	
-	public static Object getBean(String beanName) throws IOException, ClassNotFoundException {
-		
-		Object bean = null;
-	
+
+	public static <T> T getBean(Class<?> clazz) throws IOException, ClassNotFoundException {
+
+		T bean = null;
+		String beanName = clazz.getSimpleName();
 		if(checkBean(beanName)) {
-			
-			beanName = Encryption.md5(beanName);	
-			
+
+			beanName = Encryption.md5(beanName);
+
 			try(ObjectInputStream ois = new ObjectInputStream(
 					new FileInputStream(getSavePath() + beanName))
 			){
-				bean = ois.readObject();
+				bean = (T) ois.readObject();
 			}
-			
+
 		} else {
 			logger.error("Bean not found.");
-		}	
-		
+		}
+
 		return bean;
 	}
 	
