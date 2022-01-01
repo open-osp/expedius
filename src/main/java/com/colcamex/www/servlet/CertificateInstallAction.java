@@ -15,7 +15,8 @@ import org.apache.commons.fileupload.FileItem;
 import org.apache.commons.fileupload.disk.DiskFileItemFactory;
 import org.apache.commons.fileupload.servlet.ServletFileUpload;
 import org.apache.commons.io.FilenameUtils;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import com.colcamex.www.bean.ConfigurationBeanInterface;
 import com.colcamex.www.handler.ExpediusControllerHandler;
@@ -34,7 +35,7 @@ import com.colcamex.www.util.ExpediusProperties;
  */
 public class CertificateInstallAction extends HttpServlet {
 	
-    private static Logger logger = Logger.getLogger("FileUpload");
+    private static Logger logger = LogManager.getLogger("FileUpload");
 	
     private static final String ALLOWED_FILE_TYPE = "application/x-pkcs12";
     private static final String ERROR = "WEB-INF/pages/error/error.jsp";

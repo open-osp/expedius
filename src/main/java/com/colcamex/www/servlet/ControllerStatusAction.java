@@ -9,7 +9,8 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import com.colcamex.www.bean.ControllerBean;
 import com.colcamex.www.handler.ExpediusControllerHandler;
@@ -20,7 +21,7 @@ public class ControllerStatusAction extends HttpServlet {
 
 	private static final long serialVersionUID = 1L;
 
-	private static Logger logger = Logger.getLogger(ControllerStatusAction.class);
+	private static Logger logger = LogManager.getLogger(ControllerStatusAction.class);
 
 	public void init(ServletConfig config) throws ServletException {
 		super.init(config);	

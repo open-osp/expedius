@@ -3,7 +3,8 @@ package com.colcamex.www.handler;
 import java.util.ArrayList;
 import java.util.Date;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
 
 import com.colcamex.www.http.AbstractConnectionController;
 
@@ -16,7 +17,7 @@ import com.colcamex.www.http.AbstractConnectionController;
  */
 public class ServiceExecuter implements Runnable {
 
-	private static Logger logger = Logger.getLogger(ServiceExecuter.class);
+	private static final Logger logger = LogManager.getLogger(ServiceExecuter.class);
 	
 	private AbstractConnectionController[] services;
 	private static ServiceExecuter instance = null;

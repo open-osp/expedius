@@ -126,58 +126,39 @@
 			
 		<dl>
 			<dt>
-				<label for="path" >URI</label>
+				<label for="link_path" >URI</label>
 				</dt><dd>
-				<input type="text" id="link_path" name="path" value="${ excellerisConfigurationBean.servicePath }" />
+				<input type="text" id="link_path" name="path" value="${ excellerisConfigurationBean.servicePath }" readonly/>
 				<span id="link_path_error"></span>
 			</dd>
 			<dt>
-				<label for="loginPath" >Login</label>
+				<label for="link_loginPath" >Login</label>
 				</dt><dd>
-				<input type="text" id="link_loginPath" name="loginPath" value="${ excellerisConfigurationBean.loginPath }" />
+				<input type="text" id="link_loginPath" name="loginPath" value="${ excellerisConfigurationBean.loginPath }" readonly/>
 				<span id="link_loginPath_error"></span>
 			</dd>
 			<dt>
-				<label for="fetchPath" >Fetch</label>
+				<label for="link_fetchPath" >Fetch</label>
 				</dt><dd>
-				<input type="text" id="link_fetchPath" name="fetchPath" value="${ excellerisConfigurationBean.fetchPath }" />
+				<input type="text" id="link_fetchPath" name="fetchPath" value="${ excellerisConfigurationBean.fetchPath }" readonly/>
 				<span id="link_fetchPath_error"></span>
 			</dd>
 			<dt>
-				<label for="acknowledgePath" >Acknowledge</label>
+				<label for="link_acknowledgePath" >Acknowledge</label>
 				</dt><dd>
-				<input type="text" id="link_acknowledgePath" name="acknowledgePath" value="${ excellerisConfigurationBean.acknowledgePath }" />
+				<input type="text" id="link_acknowledgePath" name="acknowledgePath" value="${ excellerisConfigurationBean.acknowledgePath }" readonly/>
 				<span id="link_acknowledgePath_error"></span>
 			</dd>
 			<dt>
-				<label for="logoutPath" >Logout</label>
+				<label for="link_logoutPath" >Logout</label>
 				</dt><dd>
-				<input type="text" id="link_logoutPath" name="logoutPath" value="${ excellerisConfigurationBean.logoutPath }" />
+				<input type="text" id="link_logoutPath" name="logoutPath" value="${ excellerisConfigurationBean.logoutPath }" readonly/>
 				<span id="link_logoutPath_error"></span>
 			</dd>
 		</dl>	
-			<div>
-				<input type="button" id="link_applyButton" name="applyLinks" value="Apply" />				
-			</div>
-			
-		<div id="ExcellerisConfiguration_linkActionMessage" >${ requestScope.ExcellerisConfiguration_linkActionMessage }</div>
-		
+
 		</fieldset>
-		<fieldset id="excellerisLogs">
-			<legend>Excelleris Logs</legend>
-			<div>
-				<input type="button" id="logButton" name="logButton" value="View Log" />
-			</div>	
-										
-			<fieldset id="logFile">
-				<legend id="legendLog" >
-					<input type="button" id="closeLog" name="logButton" value="Close Log" />
-					<input type="button" id="refreshLog" name="logButton" value="Refresh" />
-				</legend>
-				
-				<div id="logContainer" style="overflow-y:scroll; height:300px;" ></div>	
-			</fieldset>
-			</fieldset>
+
 	</form>	
 </div>
 

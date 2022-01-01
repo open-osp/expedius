@@ -6,7 +6,8 @@ import java.util.List;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import com.colcamex.www.bean.ControllerBean;
 
@@ -33,7 +34,7 @@ public class PollTimer {
 	private static final Integer INITIAL_DELAY = (60*30); // download after 10 minutes of start.
 	private static final int TIME_CHECK_INTERVAL = 60; //seconds
 	
-	private static Logger logger = Logger.getLogger(PollTimer.class);
+	private static Logger logger = LogManager.getLogger(PollTimer.class);
 
 	private static Date lastRun;
 	private static Date nextRun;

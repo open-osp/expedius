@@ -3,12 +3,13 @@ package com.colcamex.www.handler;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.logging.Logger;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.w3c.dom.Document;
 import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
@@ -33,7 +34,7 @@ public class ExpediusW3CDocumentHandler {
 	private static final String ATTRIBUTE_MESSAGE_FORMAT = "messageformat"; //i.e.: ORUR01
 	private static final String ATTRIBUTE_MESSAGE_COUNT = "messagecount";
 	
-	private static Logger logger = Logger.getLogger("ExpediusConnect");
+	private static final Logger logger = LogManager.getLogger("ExpediusConnect");
 	private DocumentBuilder documentBuilder;
 	private Document document;
 	private Document newDocument;
@@ -47,7 +48,7 @@ public class ExpediusW3CDocumentHandler {
 		try {			
 			setDocumentBuilder( documentBuilderFactory.newDocumentBuilder() );
 		} catch (ParserConfigurationException e1) {
-			logger.severe("Expedius document manager failed to instantiate document builder." + e1);
+			logger.error("Expedius document manager failed to instantiate document builder." + e1);
 		}
 	}
 
@@ -83,7 +84,7 @@ public class ExpediusW3CDocumentHandler {
 	public int getMessageCount() {
 		
 		// try the root tag first.
-		NodeList nodeList = null;
+		NodeList nodeList;
 		String messageCount = getRootAttributeValue(ATTRIBUTE_MESSAGE_COUNT);
 
 		if(messageCount == null) {
@@ -134,10 +135,6 @@ public class ExpediusW3CDocumentHandler {
 
 	/**
 	 * Parse and set a new Document object from an InputStream.
-	 * @param is
-	 * @return
-	 * @throws SAXException
-	 * @throws IOException
 	 */
 	public Document parse(InputStream is) throws SAXException, IOException {
 
@@ -206,8 +203,8 @@ public class ExpediusW3CDocumentHandler {
 	
 	public String getNodeAttributeValue(String attributeName, Node node) {
 		NamedNodeMap attributes = null;
-		Node attribute = null;
-		String nodeName = null;
+		Node attribute;
+		String nodeName;
 		
 		if(node != null) {
 			attributes = node.getAttributes();
@@ -229,8 +226,8 @@ public class ExpediusW3CDocumentHandler {
 	public NodeList getNodes(String elementName) {
 		// if only XML developers would use proper naming convention...
 		String childName = null;
-		Node child = null;
-		int length = 0;
+		Node child;
+		int length;
 		getRootChildren();
 		
 		if( this.children != null ) {
@@ -262,10 +259,10 @@ public class ExpediusW3CDocumentHandler {
 	public String[] getAttributeValueArray(String attributeName, NodeList nodes) {
 		int listSize = nodes.getLength();
 		String[] attributes = new String[listSize];
-		Node node = null;
-		String attribute = null;
-		NamedNodeMap attributeMap = null;
-		Node attributeItem = null;
+		Node node;
+		String attribute;
+		NamedNodeMap attributeMap;
+		Node attributeItem;
 		
 		for(int i = 0; listSize > i; i++) {
 			node = nodes.item(i);

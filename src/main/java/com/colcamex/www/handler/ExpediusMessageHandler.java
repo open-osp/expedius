@@ -5,7 +5,8 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Date;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import com.colcamex.www.bean.ControllerBean;
 import com.colcamex.www.util.BeanRetrieval;
@@ -17,7 +18,7 @@ import com.colcamex.www.util.BeanRetrieval;
  *
  */
 public class ExpediusMessageHandler {
-	public static Logger logger = Logger.getLogger(ExpediusMessageHandler.class);
+	public static Logger logger = LogManager.getLogger(ExpediusMessageHandler.class);
 	private String statusMessage;
 	private ControllerBean controllerBean;
 	private ArrayList<String> errorMessages;

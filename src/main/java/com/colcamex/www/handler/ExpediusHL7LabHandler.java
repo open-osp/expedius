@@ -19,8 +19,9 @@ import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
 
-import org.apache.log4j.Level;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.Level;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.w3c.dom.Document;
 
 import com.colcamex.www.util.ExpediusProperties;
@@ -43,7 +44,7 @@ import net.sf.json.JSONObject;
  */
 public class ExpediusHL7LabHandler {
 
-	public static Logger logger = Logger.getLogger(ExpediusHL7LabHandler.class);
+	public static Logger logger = LogManager.getLogger(ExpediusHL7LabHandler.class);
 	
 	private static final String DEFAULT_SAVE_PATH = "/var/lib/expedius/hl7/";
 	private static final String DOCUMENT_FORMAT = "UTF-8";
@@ -239,11 +240,7 @@ public class ExpediusHL7LabHandler {
 	/**
 	 * Save downloaded HL7 to local disk space. 
 	 * Save path is determined in the properties file.
-	 * 
-	 * @param filePath
-	 * @return
-	 * @throws IOException
-	 * @throws TransformerException 
+	 *
 	 */
 	public boolean saveFile(Document document) throws IOException, TransformerException {
 

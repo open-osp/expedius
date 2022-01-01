@@ -12,14 +12,14 @@ import java.security.UnrecoverableKeyException;
 import java.security.cert.CertificateException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
-import java.util.logging.Logger;
-
 import javax.net.ssl.HttpsURLConnection;
 import javax.net.ssl.SSLContext;
 import javax.net.ssl.SSLSocketFactory;
 import javax.xml.transform.TransformerException;
 
-import org.apache.log4j.Level;
+import org.apache.logging.log4j.Level;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.w3c.dom.Document;
 
 import com.colcamex.www.bean.ConfigurationBeanInterface;
@@ -28,7 +28,6 @@ import com.colcamex.www.handler.ExpediusMessageHandler;
 import com.colcamex.www.handler.ExpediusW3CDocumentHandler;
 import com.colcamex.www.security.SSLSocket;
 import com.colcamex.www.util.Email;
-import com.colcamex.www.util.ExpediusLog;
 import com.colcamex.www.util.ExpediusProperties;
 
 /**
@@ -41,9 +40,9 @@ import com.colcamex.www.util.ExpediusProperties;
  */
 public abstract class AbstractConnectionController implements Runnable {
 
-	protected static org.apache.log4j.Logger logger = org.apache.log4j.Logger.getLogger(AbstractConnectionController.class);
-	protected static Logger customLogger = null;
-	
+	protected static Logger logger = LogManager.getLogger(AbstractConnectionController.class);
+//	protected static Logger customLogger = null;
+
 	public static final int DOWNLOAD_MODE = 1;
 	public static final int LOGIN_MODE = 2;
 	protected static final int ERROR = 1;
@@ -119,16 +118,16 @@ public abstract class AbstractConnectionController implements Runnable {
 			LOGOUT = configurationBean.getLogoutPath();
 			
 			// Custom logging	
-			ExpediusLog.setHtmlLogName(configurationBean.getUserLogPath());
-			customLogger = java.util.logging.Logger.getLogger(getClass().getName());
-			
-	    	try {
-				ExpediusLog.setup(java.util.logging.Level.INFO, customLogger);			
-			} catch (SecurityException e) {
-				logger.error("Error setting up custom logging", e);
-			} catch (IOException e) {
-				logger.error("Error setting up custom logging", e);
-			}	    	
+//			ExpediusLog.setHtmlLogName(configurationBean.getUserLogPath());
+//			customLogger = LogManager.getLogger(getClass().getName());
+//
+//	    	try {
+//				ExpediusLog.setup(Level.INFO, customLogger);
+//			} catch (SecurityException e) {
+//				logger.error("Error setting up custom logging", e);
+//			} catch (IOException e) {
+//				logger.error("Error setting up custom logging", e);
+//			}
 
 		} else {
 			logger.warn("Missing configuration information.");
@@ -220,7 +219,7 @@ public abstract class AbstractConnectionController implements Runnable {
 				getConnection().close();	
     		}
     		
-    		ExpediusLog.close();
+//    		ExpediusLog.close();
     		
 		} catch (IOException e) {	
 			handleError("Error closing connections during log-out. ", e, ERROR, false);				

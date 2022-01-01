@@ -13,7 +13,8 @@ import javax.xml.ws.handler.MessageContext;
 import javax.xml.ws.handler.soap.SOAPHandler;
 import javax.xml.ws.handler.soap.SOAPMessageContext;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.oscarehr.ws.LoginResultTransfer2;
 
 
@@ -33,7 +34,7 @@ import org.oscarehr.ws.LoginResultTransfer2;
  */
 public class OscarWSAuthHandler implements SOAPHandler<SOAPMessageContext> {
 
-	public static Logger logger = Logger.getLogger( OscarWSAuthHandler.class );
+	public static Logger logger = LogManager.getLogger( OscarWSAuthHandler.class );
 
 	private LoginResultTransfer2 loginResultTransfer;
 

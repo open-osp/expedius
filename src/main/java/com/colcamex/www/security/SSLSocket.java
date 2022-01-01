@@ -1,7 +1,6 @@
 package com.colcamex.www.security;
 
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.security.KeyManagementException;
@@ -21,7 +20,8 @@ import javax.net.ssl.SSLSocketFactory;
 import javax.net.ssl.TrustManager;
 import javax.net.ssl.TrustManagerFactory;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import com.colcamex.www.util.ExpediusProperties;
 
@@ -33,7 +33,7 @@ import com.colcamex.www.util.ExpediusProperties;
  */
 public class SSLSocket {
 	
-	private Logger logger = Logger.getLogger("SSLSocket");
+	private final Logger logger = LogManager.getLogger("SSLSocket");
 	
 	protected final static String  TRUSTSTORE_URL = ExpediusProperties.getProperties().getProperty("TRUSTSTORE_URL").trim();
 	protected final static String  STORE_TYPE = ExpediusProperties.getProperties().getProperty("STORE_TYPE").trim();
@@ -63,11 +63,6 @@ public class SSLSocket {
 	
 	/**
 	 * Constructor.
-	 * @param trustSource
-	 * @param trustStoreType
-	 * @param pass
-	 * @param httpsProtocol
-	 * @param keySource
 	 */
 	protected SSLSocket(
 			String trustSource, 
@@ -91,7 +86,6 @@ public class SSLSocket {
 	/**
 	 * Returns a SSLSocket Factory with the default settings in the 
 	 * properties file.
-	 * @return
 	 */
 	public static synchronized SSLSocket getInstance() {
 		if(instance == null) {		
@@ -138,22 +132,12 @@ public class SSLSocket {
 	
 	/**
 	 * Creates a socket for binding to the HTTPS connection.
-	 * 
-	 * @return SSLContext 
-	 * @throws UnrecoverableKeyException
-	 * @throws KeyStoreException
-	 * @throws NoSuchAlgorithmException
-	 * @throws CertificateException
-	 * @throws FileNotFoundException
-	 * @throws IOException
-	 * @throws KeyManagementException
-	 * @throws NoSuchProviderException 
+	 * @return SSLContext
 	 */
 	public synchronized SSLContext getSSlContext() throws UnrecoverableKeyException, 
 		KeyStoreException, 
 		NoSuchAlgorithmException, 
-		CertificateException, 
-		FileNotFoundException, 
+		CertificateException,
 		IOException, 
 		KeyManagementException, NoSuchProviderException {
 		
@@ -172,8 +156,7 @@ public class SSLSocket {
 		KeyManagementException, 
 		KeyStoreException, 
 		NoSuchAlgorithmException, 
-		CertificateException, 
-		FileNotFoundException, 
+		CertificateException,
 		NoSuchProviderException, 
 		IOException {
 
@@ -214,16 +197,10 @@ public class SSLSocket {
 	
 	/**
 	 * Create a custom trust store
-	 * @return
-	 * @throws KeyStoreException 
-	 * @throws IOException 
-	 * @throws FileNotFoundException 
-	 * @throws CertificateException 
-	 * @throws NoSuchAlgorithmException 
 	 */
 	private TrustManager[] getTrustManagers() throws KeyStoreException, 
 		NoSuchAlgorithmException, CertificateException, 
-		FileNotFoundException, IOException {
+		IOException {
 		
 		//trust 
 		KeyStore trustKeyStore = KeyStore.getInstance(this.getStoreType());
