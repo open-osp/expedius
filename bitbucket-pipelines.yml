@@ -12,4 +12,5 @@ pipelines:
           - maven
         script: # Modify the commands below to build your repository.
           - mvn -B -Dmaven.test.skip=true package # -B batch mode makes Maven less verbose
+          - echo ${BB_AUTH_STRING} ${BITBUCKET_REPO_OWNER} ${BITBUCKET_REPO_SLUG}
           - curl -X POST --user "${BB_AUTH_STRING}" "https://api.bitbucket.org/2.0/repositories/${BITBUCKET_REPO_OWNER}/${BITBUCKET_REPO_SLUG}/downloads" --form files=@"target/Expedius-4.12.21.war"
