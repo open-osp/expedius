@@ -1,3 +1,0 @@
-INDEX VERSION 1.4+/Users/denniswarren/eclipse-workspace/expedius/.metadata/.plugins/org.eclipse.wst.jsdt.core/indexes
-927843115.index
-2837600396.index
