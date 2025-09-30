@@ -49,7 +49,20 @@ public class ExpediusConnect {
 	private int responseCode;
 	
 	private ExpediusConnect() { 
-		DocumentBuilderFactory documentBuilderFactory =  DocumentBuilderFactory.newInstance();	
+		DocumentBuilderFactory documentBuilderFactory =  DocumentBuilderFactory.newInstance();
+		
+		// Secure against XXE attacks
+		try {
+			documentBuilderFactory.setFeature("http://apache.org/xml/features/disallow-doctype-decl", true);
+			documentBuilderFactory.setFeature("http://xml.org/sax/features/external-general-entities", false);
+			documentBuilderFactory.setFeature("http://xml.org/sax/features/external-parameter-entities", false);
+			documentBuilderFactory.setFeature("http://apache.org/xml/features/nonvalidating/load-external-dtd", false);
+			documentBuilderFactory.setXIncludeAware(false);
+			documentBuilderFactory.setExpandEntityReferences(false);
+		} catch (ParserConfigurationException e) {
+			logger.error("Failed to configure secure XML parsing features.", e);
+		}
+		
 		try {
 			documentBuilder = documentBuilderFactory.newDocumentBuilder();
 		} catch (ParserConfigurationException e) {
