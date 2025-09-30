@@ -43,7 +43,7 @@ public class SSLSocket {
 	
 	private final static String DEFAULT_PROVIDER = "SunJSSE";
 	private final static String DEFAULT_FACTORY_TYPE = "SunX509";
-	private final static String DEFAULT_SSL_TYPE = "TLSv1";
+	private final static String DEFAULT_SSL_TYPE = "TLSv1.2";
 	private final static String DEFAULT_STORE_TYPE = "JKS";
 	
 	private String storeType; 
