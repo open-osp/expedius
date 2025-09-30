@@ -28,7 +28,7 @@ $(document).ready(function() {
 	
 	// Disable manual download and start while poll is running ----------------------------->
 	$.fn.disableDownload = function(status) {
-		if(status == "true") {
+		if(status === "true") {
 			$("#download").attr("disabled", true);
 			$("#start").attr("disabled", true);
 			$("stop").attr("disabled", false);
@@ -49,8 +49,8 @@ $(document).ready(function() {
 	// page refresh command -----------------------------> 
 	$('#refreshButton').click(function() {
 	    //location.reload(true);
-		var currentAction = $("#statusPanel").attr("action");
-		var newAction = currentAction.substring(0, currentAction.lastIndexOf('/') + 1) + "status";
+		let currentAction = $("#statusPanel").attr("action");
+		let newAction = currentAction.substring(0, currentAction.lastIndexOf('/') + 1) + "status";
 		$("#statusPanel").attr("action", newAction);
 		$("#statusPanel").submit();
 	});
@@ -60,28 +60,28 @@ $(document).ready(function() {
 	$("#ihaLogFile").hide();
 
 	$('input:button[name="logButton"]').click(function(){
-		if(htmlLogPath != "") {
-			var servlet = $(this).attr("id");
+		if(htmlLogPath !== "") {
+			let servlet = $(this).attr("id");
 			
-			if(servlet == "logButton") {			
+			if(servlet === "logButton") {
 				
 				$("#logFile").show();			
 				$("#logButton").hide();
 
 				$.get(htmlLogPath, function(data) {
-					  $("#logContainer").html(data);
+					  $("#logContainer").text(data);
 				});
 				
-			} if (servlet == "closeLog") {
+			} if (servlet === "closeLog") {
 				
 				if(!false) {
 					$("#logFile").hide();
 					$("#logButton").show();
 				}
 				
-			} if (servlet == "refreshLog") {
+			} if (servlet === "refreshLog") {
 				$.get(htmlLogPath, function(data) {
-					  $("#logContainer").html(data);
+					  $("#logContainer").text(data);
 				});
 			}
 		}
@@ -93,8 +93,8 @@ $(document).ready(function() {
 
 			 $("<input>").attr({type: "hidden", id: "dismisserror", name: "dismisserror", value: this.value}).appendTo("form");
 			 
-			 var currentAction = $("#statusPanel").attr("action");
-			var newAction = currentAction.substring(0, currentAction.lastIndexOf('/') + 1) + "status";
+			 let currentAction = $("#statusPanel").attr("action");
+			let newAction = currentAction.substring(0, currentAction.lastIndexOf('/') + 1) + "status";
 			$("#statusPanel").attr("action", newAction);
 			 $("#statusPanel").submit();
 			 
@@ -108,10 +108,10 @@ $(document).ready(function() {
 	// Password checker ----------------------------->
 	$.fn.confirmPasswords = function(id) {
 
-		var modify = id.split("_");
-		var passOne = $("#"+modify[0]+"_password").val();
-		var passTwo = $("#"+modify[0]+"_passwordConfirm").val();
-		var confirm = true;
+		let modify = id.split("_");
+		let passOne = $("#"+modify[0]+"_password").val();
+		let passTwo = $("#"+modify[0]+"_passwordConfirm").val();
+		let confirm = true;
 		
 		$("#"+modify[0]+"_passwordConfirm_error").text(null);
 		
@@ -133,15 +133,15 @@ $(document).ready(function() {
 	
 	$("input[name='applyLinks'], input[name='applyCertificate'], input[name='applyLogin']").click(function() {
 		
-		var id = $(this).attr("id");
+		let id = $(this).attr("id");
 
-		var prefix = (id.split("_"))[0]+"_";
-		var formId = "#"+prefix+"form";
-		var submit = true;
+		let prefix = (id.split("_"))[0]+"_";
+		let formId = "#"+prefix+"form";
+		let submit = true;
 
 		$.each($(formId + " input"), function(key, value){	
 			
-			var item = value.value;
+			let item = value.value;
 			$("#"+value.id+"_error").text("");
 			
 			if( (item == "")||(item == null) ) {
@@ -164,13 +164,13 @@ $(document).ready(function() {
 	
 	$.fn.toggleOptions = function(element) {
 		
-		var id = $(element).attr("id");
-		var parentId = '#'+(id.split("_"))[1]
-		var altParentId = null;
-		var sourceValue = $(element).val();
+		let id = $(element).attr("id");
+		let parentId = '#'+(id.split("_"))[1]
+		let altParentId = null;
+		let sourceValue = $(element).val();
 		
 		$.each($("input[name='pollSetting']"), function(key, value){
-			if(value.value != sourceValue) {
+			if(value.value !== sourceValue) {
 				altParentId = '#'+(value.id.split("_"))[1];
 			}
 		});
