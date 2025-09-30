@@ -1,5 +1,8 @@
 package com.colcamex.www.security;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
 import java.math.BigInteger;
 import java.security.InvalidKeyException;
 import java.security.MessageDigest;
@@ -22,6 +25,7 @@ import javax.crypto.spec.SecretKeySpec;
  */
 public final class Encryption {
 
+	private static final Logger logger = LogManager.getLogger("ExpediusConnect");
 	private static final MessageDigest messageDigest = initMessageDigest("SHA-1");
 	private static final MessageDigest messageDigestMd5 = initMessageDigest("MD5");
 	private static final QueueCache<String, byte[]> sha1Cache = new QueueCache<String,byte[]>(4, 2048);
@@ -89,16 +93,9 @@ public final class Encryption {
 			cipher = Cipher.getInstance("AES");
 			cipher.init(Cipher.ENCRYPT_MODE, secretKeySpec);
 			results = cipher.doFinal(plainData);
-		} catch (NoSuchAlgorithmException e) {
-			e.printStackTrace();
-		} catch (NoSuchPaddingException e) {
-			e.printStackTrace();
-		} catch (InvalidKeyException e) {
-			e.printStackTrace();
-		} catch (IllegalBlockSizeException e) {
-			e.printStackTrace();
-		} catch (BadPaddingException e) {
-			e.printStackTrace();
+		} catch (NoSuchAlgorithmException | NoSuchPaddingException | InvalidKeyException | IllegalBlockSizeException |
+		         BadPaddingException e) {
+			logger.error("Failed to set encryption cipher", e);
 		}
 
 		return  results;
@@ -115,16 +112,9 @@ public final class Encryption {
 			cipher = Cipher.getInstance("AES");
 			cipher.init(Cipher.DECRYPT_MODE, secretKeySpec);
 			results = cipher.doFinal(encryptedData);
-		} catch (NoSuchAlgorithmException e) {
-			e.printStackTrace();
-		} catch (NoSuchPaddingException e) {
-			e.printStackTrace();
-		} catch (InvalidKeyException e) {
-			e.printStackTrace();
-		} catch (IllegalBlockSizeException e) {
-			e.printStackTrace();
-		} catch (BadPaddingException e) {
-			e.printStackTrace();
+		} catch (NoSuchAlgorithmException | NoSuchPaddingException | InvalidKeyException | IllegalBlockSizeException |
+		         BadPaddingException e) {
+			logger.error("Failed to set decryption cipher", e);
 		}
 
 		return results;

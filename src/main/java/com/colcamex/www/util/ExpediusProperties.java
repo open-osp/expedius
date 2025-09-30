@@ -1,5 +1,8 @@
 package com.colcamex.www.util;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -8,7 +11,8 @@ import java.util.Properties;
 public class ExpediusProperties extends Properties {
 
 	private static final long serialVersionUID = 1L;
-	
+
+	private static final Logger logger = LogManager.getLogger("ExpediusConnect");
 	public static final String PROPERTIES_FILE_NAME = "ExpediusProperties";
 	
 	private static ExpediusProperties instance = null;	
@@ -21,16 +25,9 @@ public class ExpediusProperties extends Properties {
 		}
 		
 		try (FileInputStream inputStream = new FileInputStream(propertiesPath)) {
-
-			if(inputStream != null) {			
 				load(inputStream);
-				inputStream.close();				
-			}
-			
-		} catch (FileNotFoundException e) {
-			e.printStackTrace();
-		} catch (IOException e) {			
-			e.printStackTrace();			
+		} catch (IOException e) {
+			logger.error("Failed to load properties file", e);
 		} finally {
 			
 		}
@@ -39,9 +36,8 @@ public class ExpediusProperties extends Properties {
 	/**
 	 * Provides a pointer to the Expedius Properties instance IF it has
 	 * already been instantiated. 
-	 * IF not instantiated an instance will be created with the default 
-	 * properties file path. 
-	 * @return
+	 * IF not instantiated, an instance will be created with the default
+	 * properties file path.
 	 */
 	public static ExpediusProperties getProperties() {
 		if(instance == null)
@@ -53,9 +49,8 @@ public class ExpediusProperties extends Properties {
 	
 	/**
 	 * Get an Expedius Properties file instance from the provided properties path 
-	 * parameter.  If the properties path is not found, an instance based on default
-	 * parameters will be provided. 
-	 * @param propertiesPath
+	 * parameter.  If the property path is not found, an instance based on default
+	 * parameters will be provided.
 	 */
 	public static ExpediusProperties getProperties(String propertiesPath) {		
 		instance = new ExpediusProperties(propertiesPath);
