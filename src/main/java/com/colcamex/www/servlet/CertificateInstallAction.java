@@ -29,13 +29,12 @@ import com.colcamex.www.util.ExpediusProperties;
  * 
  * @author Dennis Warren
  * @Company Colcamex Resources
- * @Date 
- * @Comment 
+ * @Date
  * 
  */
 public class CertificateInstallAction extends HttpServlet {
 	
-    private static Logger logger = LogManager.getLogger("FileUpload");
+    private static final Logger logger = LogManager.getLogger("FileUpload");
 	
     private static final String ALLOWED_FILE_TYPE = "application/x-pkcs12";
     private static final String ERROR = "WEB-INF/pages/error/error.jsp";
@@ -44,13 +43,9 @@ public class CertificateInstallAction extends HttpServlet {
     private static final int THRESHOLD_SIZE = 1024 * 1024 * 3; // 3MB
     private static final int MAX_FILE_SIZE = 1024 * 1024 * 1; // 1MB
     private static final int REQUEST_SIZE = 1024 * 1024 * 50; // 50MB  
-    
-//    private ConfigurationBeanInterface configurationBean = null;
+
     private ExpediusProperties properties;
-//    private File storeFile;
-//    private KeyCutter keyCutter;
- 
-    
+
     /**
      * @see HttpServlet#HttpServlet()
      */
@@ -64,13 +59,16 @@ public class CertificateInstallAction extends HttpServlet {
         String propertiesPath = config.getServletContext().getInitParameter("ExpediusProperties");
         properties = ExpediusProperties.getProperties(propertiesPath);
 	}
-    
+
 	/**
-	 * 
-	 * @param request
-	 * @param response
-	 * @throws ServletException
-	 * @throws IOException
+	 * Processes an HTTP request for handling file uploads and certificate installation.
+	 * Handles multipart content, validates file types, processes form fields, writes files,
+	 * checks passwords, and manages configuration beans.
+	 *
+	 * @param request  the HttpServletRequest object containing the client's request
+	 * @param response the HttpServletResponse object to send the response back to the client
+	 * @throws ServletException if a servlet-specific error occurs
+	 * @throws IOException      if an input or output error occurs during request processing
 	 */
 	@SuppressWarnings("rawtypes")
 	protected void processRequest(HttpServletRequest request, HttpServletResponse response) 
@@ -217,7 +215,16 @@ public class CertificateInstallAction extends HttpServlet {
 			logger.error("Exception: ",e);
 		}
     }
-	
+
+	/**
+	 * Cuts a key using the provided certificate password and store file.
+	 * Configures the KeyCutter instance with details from the properties file
+	 * and the provided parameters and initiates the key cutting process.
+	 *
+	 * @param certPass the password for the certificate used during key cutting
+	 * @param storeFile the file representing the key store or source path for the KeyCutter
+	 * @return a KeyCutter object configured and processed for use, or null if the properties file is missing
+	 */
 	private KeyCutter cutKey(String certPass, File storeFile) {
 		
 		if(properties == null) {
@@ -247,9 +254,7 @@ public class CertificateInstallAction extends HttpServlet {
         
         try {
 			dispatch.forward(request, response);
-		} catch (ServletException e) {
-			logger.error("Exception: ",e);
-		} catch (IOException e) {
+		} catch (ServletException | IOException e) {
 			logger.error("Exception: ",e);
 		}
 	}

@@ -8,18 +8,18 @@ COPY RIGHT: Colcamex Resources 2012-2013
 
 --------------------------------------------------
 
-PRE-REQUESITS:
+PREREQUISITES:
 
 *  CATALINA_BASE and CATALINA_HOME environment variables are set.
 *  Tomcats deployment folder has the standard name "webapps".
-*  Oscar is installed, configured, and deployed at least once.
+*  Oscar is installed, configured and deployed at least once.
 *  An Excelleris account
 
 INSTALLATION
 
 1.  un-tar the ExpediusRC file.
 
-2.  Run the install script, install.sh, from inside the ExpediusRC directory
+2.  Run the installation script, install.sh, from inside the ExpediusRC directory
 		- sh install.sh
 		- answer the questions when prompted.
 		
@@ -71,5 +71,5 @@ in the same folder where the Oscar properties file is located.
 	- sudo cp -p [oscar].properties.save [oscar].properties
 
 Email me: dwarren@colcamex.com
-Call me: 778-386-9264
+
 

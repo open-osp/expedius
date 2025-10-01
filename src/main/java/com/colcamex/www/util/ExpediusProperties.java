@@ -53,8 +53,7 @@ public class ExpediusProperties extends Properties {
 	 * parameters will be provided.
 	 */
 	public static ExpediusProperties getProperties(String propertiesPath) {		
-		instance = new ExpediusProperties(propertiesPath);
-		return instance;
+		return new ExpediusProperties(propertiesPath);
 	}
 	
 
