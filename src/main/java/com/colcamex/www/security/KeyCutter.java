@@ -12,6 +12,9 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.security.cert.Certificate;
 import java.security.Key;
 import java.security.KeyStore;
@@ -36,6 +39,8 @@ public class KeyCutter {
 
 	private static final Logger logger = LogManager.getLogger("KeyCutter");
 	private static final String DEFAULT_IMPORT_STORE_TYPE = "pkcs12";
+	private static final String DEFAULT_KEYSTORE_NAME = "expedius_key.jks";
+	private static final String DEFAULT_TRUSTSTORE_NAME = "expedius_trust.jks";
 
 	private static KeyCutter instance = null;
 	private String error;
@@ -83,15 +88,9 @@ public class KeyCutter {
 			
 			keystore = keyStore();
 			truststore = trustStore();
-		
-			if(keystore != null) {
-				keystore.store(keyStoreOut, getKeyStorePassword());
-			} 
+			keystore.store(keyStoreOut, getKeyStorePassword());
+			truststore.store(trustStoreOut, getKeyStorePassword());
 
-			if(truststore != null) {
-				truststore.store(trustStoreOut, getKeyStorePassword());
-			} 
-			
 		} catch (FileNotFoundException e) {
 			logger.error("Exception: ",e);
 			setError("Certificate storage directory not found. Contact support.");
@@ -100,10 +99,10 @@ public class KeyCutter {
 			setError("Contact support." + e.getMessage());
 		} catch (NoSuchAlgorithmException e) {
 			logger.error("Exception: ",e);
-			setError("Contact support." + e.getMessage());
+			setError("The certificate algorithm is missing" + e.getMessage());
 		} catch (CertificateException e) {
 			logger.error("Exception: ",e);
-			setError("Contact support." + e.getMessage());
+			setError("There was an error with the certificate" + e.getMessage());
 		} catch (IOException e) {
 			
 			if(e.getCause() instanceof javax.crypto.BadPaddingException) {
@@ -120,7 +119,7 @@ public class KeyCutter {
 			
 		} catch (NoSuchProviderException e) {
 			logger.error("Exception: ",e);
-			setError("Contact support." + e.getMessage());
+			setError("Certificate provider unknown." + e.getMessage());
 		} 
 
 		return instance;
@@ -221,7 +220,11 @@ public class KeyCutter {
 	}
 	
 	public void setTrustStorePath(String trustStorePath) {
-		setTrustStorePath(new File(trustStorePath + "expedius_truststore." + getStoreType()));
+		Path trustPath = Paths.get(trustStorePath);
+		if(Files.isDirectory(trustPath)){
+			trustPath = Paths.get(trustPath.toString(), DEFAULT_TRUSTSTORE_NAME);
+		}
+		setTrustStorePath(trustPath.toFile());
 	}
 
 	public void setTrustStorePath(File trustStorePath) {
@@ -233,7 +236,11 @@ public class KeyCutter {
 	}
 	
 	public void setKeyStorePath(String keyStorePath) {
-		setKeyStorePath(new File(keyStorePath + "expedius_keystore." + getStoreType()));
+		Path keyPath = Paths.get(keyStorePath);
+		if(Files.isDirectory(keyPath)){
+			keyPath = Paths.get(keyPath.toString(), DEFAULT_KEYSTORE_NAME);
+		}
+		setKeyStorePath(keyPath.toFile());
 	}
 
 	public void setKeyStorePath(File keyStorePath) {
@@ -265,7 +272,7 @@ public class KeyCutter {
 	}
 
 	private String getStoreType() {
-		return storeType;
+		return storeType.toLowerCase();
 	}
 
 	public void setStoreType(String storeType) {
