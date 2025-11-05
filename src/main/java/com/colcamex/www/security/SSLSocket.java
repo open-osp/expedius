@@ -3,6 +3,8 @@ package com.colcamex.www.security;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.security.KeyManagementException;
 import java.security.KeyStore;
 import java.security.KeyStoreException;
@@ -183,7 +185,7 @@ public class SSLSocket {
 		
 		// keys
 		KeyStore ks = KeyStore.getInstance(this.getStoreType());  					
-		InputStream keySourceStream = new FileInputStream(this.getKeySource());		
+		InputStream keySourceStream = Files.newInputStream(Paths.get(this.getKeySource()));
 		ks.load(keySourceStream, this.getPass().toCharArray());
 		
 		logger.debug("Setting SSLSocket with key store source: " + this.getKeySource());

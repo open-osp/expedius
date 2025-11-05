@@ -47,7 +47,7 @@ public class ExpediusW3CDocumentHandler {
 
 		// Secure against XXE attacks
 		try {
-			documentBuilderFactory.setFeature("http://apache.org/xml/features/disallow-doctype-decl", true);
+			documentBuilderFactory.setFeature("http://apache.org/xml/features/disallow-doctype-decl", false);
 			documentBuilderFactory.setFeature("http://xml.org/sax/features/external-general-entities", false);
 			documentBuilderFactory.setFeature("http://xml.org/sax/features/external-parameter-entities", false);
 			documentBuilderFactory.setFeature("http://apache.org/xml/features/nonvalidating/load-external-dtd", false);

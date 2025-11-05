@@ -53,7 +53,7 @@ public class ExpediusConnect {
 		
 		// Secure against XXE attacks
 		try {
-			documentBuilderFactory.setFeature("http://apache.org/xml/features/disallow-doctype-decl", true);
+			documentBuilderFactory.setFeature("http://apache.org/xml/features/disallow-doctype-decl", false);
 			documentBuilderFactory.setFeature("http://xml.org/sax/features/external-general-entities", false);
 			documentBuilderFactory.setFeature("http://xml.org/sax/features/external-parameter-entities", false);
 			documentBuilderFactory.setFeature("http://apache.org/xml/features/nonvalidating/load-external-dtd", false);
@@ -229,6 +229,7 @@ public class ExpediusConnect {
 					setHasResponse(Boolean.TRUE);
 				} catch (SAXException e) {
 					logger.error( "Expedius connection manager failed to parse a server response during Login.", e);
+					setResponseCode(HttpsURLConnection.HTTP_INTERNAL_ERROR);
 				} finally {
 					if(getResponseCode() == HttpsURLConnection.HTTP_OK) {
 						setLoggedIn(Boolean.TRUE);
