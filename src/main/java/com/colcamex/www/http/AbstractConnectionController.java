@@ -83,13 +83,11 @@ public abstract class AbstractConnectionController implements Runnable {
     public abstract void setMessageHandler(ExpediusMessageHandler messageHandler);
     public abstract void setDocumentHandler(ExpediusW3CDocumentHandler documentHandler);
       
-    public AbstractConnectionController(ConfigurationBeanInterface configurationBean) {
-    	
-    	properties = ExpediusProperties.getProperties();
-    	
+    public AbstractConnectionController(ConfigurationBeanInterface configurationBean, ExpediusProperties properties) {
+
     	// contains static properties
     	if(properties != null) {
-
+			this.properties = properties;
 			TRUSTSTORE_URL = properties.getProperty("TRUSTSTORE_URL").trim();
 			STORE_TYPE = properties.getProperty("STORE_TYPE").trim();
 			STORE_PASS = properties.getProperty("STORE_PASS").trim();
@@ -116,19 +114,6 @@ public abstract class AbstractConnectionController implements Runnable {
 			FETCH = configurationBean.getFetchPath();
 			ACKNOWLEDGE = configurationBean.getAcknowledgePath();
 			LOGOUT = configurationBean.getLogoutPath();
-			
-			// Custom logging	
-//			ExpediusLog.setHtmlLogName(configurationBean.getUserLogPath());
-//			customLogger = LogManager.getLogger(getClass().getName());
-//
-//	    	try {
-//				ExpediusLog.setup(Level.INFO, customLogger);
-//			} catch (SecurityException e) {
-//				logger.error("Error setting up custom logging", e);
-//			} catch (IOException e) {
-//				logger.error("Error setting up custom logging", e);
-//			}
-
 		} else {
 			logger.warn("Missing configuration information.");
 			return;
@@ -419,12 +404,8 @@ public abstract class AbstractConnectionController implements Runnable {
 
 	/**
 	 * Processes errors and exceptions by creating a log entry, sending a user GUI message, 
-	 * and alerting user by email.
-	 * 
-	 * @param message
-	 * @param exception
-	 * @param errorLevel
-	 * @param sendEmail
+	 * and alerting the user by email.
+	 *
 	 */
 	protected void handleError(String message, Exception exception, int errorLevel, boolean sendEmail) {
 	

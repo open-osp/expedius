@@ -7,6 +7,7 @@ import java.net.SocketTimeoutException;
 import javax.net.ssl.*;
 import javax.xml.parsers.ParserConfigurationException;
 
+import com.colcamex.www.util.ExpediusProperties;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 
@@ -38,11 +39,11 @@ public class ExcellerisController extends AbstractConnectionController {
 
 	private String labType;
 
-	public ExcellerisController(ConfigurationBeanInterface configurationBean) {		
-		super(configurationBean);
+	public ExcellerisController(ConfigurationBeanInterface configurationBean, ExpediusProperties properties) {
+		super(configurationBean, properties);
 		
 		if(super.properties.containsKey("EXCELLERIS_LAB_TYPE")) {
-			this.labType = properties.getProperty("EXCELLERIS_LAB_TYPE").trim();
+			this.labType = super.properties.getProperty("EXCELLERIS_LAB_TYPE").trim();
 		} else {
 			this.labType = DEFAULT_EXCELLERIS_LAB_TYPE;
 		}
@@ -166,7 +167,7 @@ public class ExcellerisController extends AbstractConnectionController {
 			} catch (SocketTimeoutException e1) {
 				handleError("Connection timeout occured during handshake. Check internet connectivity and try again. ", e1, ERROR, false);
 			} catch (IOException e2) { 										
-				handleError("Server is not recognized or cannot be reached during handshake. Check connection links or if server is accessable. ", e2, ERROR, false);			
+				handleError("Server is not recognized or cannot be reached during handshake. Check connection links or if server is accessible. ", e2, ERROR, false);
 			}
 						
 			/*

@@ -159,7 +159,7 @@ public class ExpediusControllerHandler {
 			logger.info("Setting Excelleris service ");	
 
 			ConfigurationBeanInterface excellerisConfigurationBean = getConfigurationBean( EXCELLERIS_CONFIGURATION_NAME );
-			AbstractConnectionController excelleris = new ExcellerisController(excellerisConfigurationBean);
+			AbstractConnectionController excelleris = new ExcellerisController(excellerisConfigurationBean, properties);
 			excelleris.setServiceName(excellerisConfigurationBean.getServiceName());
 			excelleris.setDocumentHandler(documentHandler);
 			excelleris.setConnection(connection);
@@ -178,7 +178,7 @@ public class ExpediusControllerHandler {
 				ihaConfiguration.setCertificateInstalled(Boolean.TRUE);
 			}
 			
-			AbstractConnectionController ihapoi = new IhaController(ihaConfiguration);
+			AbstractConnectionController ihapoi = new IhaController(ihaConfiguration, properties);
 			ihapoi.setServiceName(ihaConfiguration.getServiceName());
 			ihapoi.setDocumentHandler(documentHandler);
 			ihapoi.setConnection(connection);

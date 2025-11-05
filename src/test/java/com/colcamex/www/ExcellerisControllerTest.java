@@ -44,7 +44,7 @@ public class ExcellerisControllerTest {
 		ExpediusW3CDocumentHandler documentHandler = new ExpediusW3CDocumentHandler();
 		ExpediusConnect connection = ExpediusConnect.getInstance(documentHandler);
 
-		excellerisController = new ExcellerisController(BeanRetrieval.getBean(ExcellerisConfigurationBean.class));
+		excellerisController = new ExcellerisController(BeanRetrieval.getBean(ExcellerisConfigurationBean.class), ExpediusProperties.getProperties());
 		excellerisController.setLabHandler(new ExpediusHL7LabHandler(ExpediusProperties.getProperties()));
 		excellerisController.setDocumentHandler(documentHandler);
 		excellerisController.setConnection(connection);

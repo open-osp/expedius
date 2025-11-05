@@ -10,6 +10,7 @@ import com.colcamex.www.handler.ExpediusMessageHandler;
 import com.colcamex.www.handler.ExpediusW3CDocumentHandler;
 import com.colcamex.www.http.ExpediusConnect;
 import com.colcamex.www.http.AbstractConnectionController;
+import com.colcamex.www.util.ExpediusProperties;
 
 
 public class IhaController extends AbstractConnectionController {
@@ -21,11 +22,11 @@ public class IhaController extends AbstractConnectionController {
 	 */
 	private String labType;
 
-	public IhaController(ConfigurationBeanInterface configurationBean) {
-		super(configurationBean);
+	public IhaController(ConfigurationBeanInterface configurationBean, ExpediusProperties properties) {
+		super(configurationBean, properties);
 		
 		if(super.properties.containsKey("IHA_POI_LAB_TYPE")) {
-			this.labType = properties.getProperty("IHA_POI_LAB_TYPE").trim();
+			this.labType = super.properties.getProperty("IHA_POI_LAB_TYPE").trim();
 		} else {
 			this.labType = DEFAULT_IHAPOI_LAB_TYPE;
 		}

@@ -35,7 +35,7 @@ public class IhaControllerTest {
 			ExpediusW3CDocumentHandler documentHandler = new ExpediusW3CDocumentHandler();
 			ExpediusConnect connection = ExpediusConnect.getInstance(documentHandler);
 			configBean = BeanRetrieval.getBean(IhaConfigurationBean.class);
-			ihaController = new IhaController(configBean);
+			ihaController = new IhaController(configBean, properties);
 			ihaController.setLabHandler(new ExpediusHL7LabHandler(properties));
 			ihaController.setDocumentHandler(documentHandler);
 			ihaController.setConnection(connection);
