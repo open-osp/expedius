@@ -1,3 +1,4 @@
+<?xml version="1.0" encoding="UTF-8"?>
 <result xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
 <messages>
     <message format="HL7" msgId="LAB4315058.hl7" version="2.3"><![CDATA[MSH|^~\&|IHALAB^2.1|IHPRH|LAB||201206151547||ORU^R01|C390416|D|2.3|||||||||||||
