@@ -7,11 +7,9 @@
  */
 package com.colcamex.www.security;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.IOException;
+import java.io.*;
+import java.net.HttpURLConnection;
+import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -24,6 +22,8 @@ import java.security.NoSuchProviderException;
 import java.security.PrivateKey;
 import java.security.UnrecoverableKeyException;
 import java.security.cert.CertificateException;
+import java.security.cert.CertificateFactory;
+import java.security.cert.X509Certificate;
 import java.util.Enumeration;
 
 import org.apache.logging.log4j.LogManager;
@@ -41,6 +41,7 @@ public class KeyCutter {
 	private static final String DEFAULT_IMPORT_STORE_TYPE = "pkcs12";
 	private static final String DEFAULT_KEYSTORE_NAME = "expedius_key.jks";
 	private static final String DEFAULT_TRUSTSTORE_NAME = "expedius_trust.jks";
+	private static final String DEFAULT_INTERMEDIATE_CERT_URL = "https://cacerts.digicert.com/DigiCertGlobalG2TLSRSASHA2562020CA1-1.crt.pem";
 
 	private static KeyCutter instance = null;
 	private String error;
@@ -188,11 +189,83 @@ public class KeyCutter {
 		Enumeration<String> aliases = keyStore.aliases();
 		String alias = aliases.nextElement();
 		Certificate[] cert = keyStore.getCertificateChain(alias);
+
 		for(int i = 0; cert.length > i; i++) {
 			jksTrustStore.setCertificateEntry(getTrustStoreAlias()+i, cert[i]);
 		}
+
+		X509Certificate intermediateCert = fetchIntermediateCertificate(DEFAULT_INTERMEDIATE_CERT_URL);
+		if(intermediateCert != null) {
+			jksTrustStore.setCertificateEntry(getTrustStoreAlias() + "_intermediate", intermediateCert);
+		}
 		
 		return jksTrustStore;
+	}
+
+	/**
+	 * Downloads an intermediate certificate from DigiCert and installs it into the trust store
+	 * @param certificateUrl The URL of the certificate to download
+	 */
+	public X509Certificate fetchIntermediateCertificate(String certificateUrl) {
+		try {
+			// Download the certificate
+			logger.info("Downloading certificate from: " + certificateUrl);
+			byte[] certificateBytes = downloadCertificate(certificateUrl);
+
+			if (certificateBytes == null) {
+				setError("Failed to download certificate from: " + certificateUrl);
+				return null;
+			}
+
+			// Parse the certificate
+			CertificateFactory certificateFactory = CertificateFactory.getInstance("X.509");
+			return (X509Certificate) certificateFactory.generateCertificate(
+					new ByteArrayInputStream(certificateBytes)
+			);
+
+		} catch (Exception e) {
+			logger.error("Failed to download and install certificate: ", e);
+			setError("Failed to download and install certificate: " + e.getMessage());
+			return null;
+		}
+	}
+
+	/**
+	 * Downloads certificate data from the given URL
+	 * @param certificateUrl The URL to download the certificate from
+	 * @return The certificate bytes, or null if download failed
+	 */
+	private byte[] downloadCertificate(String certificateUrl) {
+		try {
+			URL url = new URL(certificateUrl);
+			HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+			connection.setRequestMethod("GET");
+			connection.setConnectTimeout(10000); // 10 seconds
+			connection.setReadTimeout(30000); // 30 seconds
+			connection.setRequestProperty("User-Agent", "Expedius Certificate Downloader");
+
+			int responseCode = connection.getResponseCode();
+			if (responseCode != HttpURLConnection.HTTP_OK) {
+				logger.error("HTTP error code: " + responseCode + " when downloading certificate");
+				return null;
+			}
+
+			try (BufferedInputStream in = new BufferedInputStream(connection.getInputStream())) {
+				byte[] buffer = new byte[8192];
+				int bytesRead;
+				java.io.ByteArrayOutputStream baos = new java.io.ByteArrayOutputStream();
+
+				while ((bytesRead = in.read(buffer)) != -1) {
+					baos.write(buffer, 0, bytesRead);
+				}
+
+				return baos.toByteArray();
+			}
+
+		} catch (Exception e) {
+			logger.error("Error downloading certificate: ", e);
+			return null;
+		}
 	}
 
 	private File getSourcePath() {
