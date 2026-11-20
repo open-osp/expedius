@@ -1,23 +1,19 @@
 package com.colcamex.www.util;
 
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.Serializable;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 
-import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.lang3.text.WordUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import com.colcamex.www.bean.ConfigurationBeanInterface;
 import com.colcamex.www.bean.ControllerBean;
 import com.colcamex.www.security.Encryption;
-import org.springframework.beans.factory.ListableBeanFactory;
-import org.springframework.beans.factory.NoSuchBeanDefinitionException;
 
 
 /**
@@ -63,7 +59,7 @@ public class BeanRetrieval implements Serializable {
 			beanName = Encryption.md5(beanName);
 
 			try(ObjectInputStream ois = new ObjectInputStream(
-					new FileInputStream(getSavePath() + beanName))
+					Files.newInputStream(Paths.get(getSavePath() + beanName)))
 			){
 				bean = (T) ois.readObject();
 			}
@@ -99,7 +95,7 @@ public class BeanRetrieval implements Serializable {
 			beanName = Encryption.md5(simpleName);
 
 			try(ObjectOutputStream oos = new ObjectOutputStream(
-					new FileOutputStream(getSavePath() + beanName))
+					Files.newOutputStream(Paths.get(getSavePath() + beanName)))
 			)
 			{
 				oos.writeObject(bean);
