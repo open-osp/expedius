@@ -17,7 +17,7 @@ public class OscarWSHandlerTest {
 	
 	@BeforeClass
 	public static void setUp() throws Exception {
-		oscarWSHandler = new OscarWSHandler("dwarren", "Yessum123");
+		oscarWSHandler = new OscarWSHandler("expedius", "Test#123");
 	}
 	
 	@AfterClass

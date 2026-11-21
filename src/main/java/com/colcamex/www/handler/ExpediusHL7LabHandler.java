@@ -24,6 +24,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.w3c.dom.Document;
 
+import com.colcamex.www.health.HealthMonitor;
 import com.colcamex.www.util.ExpediusProperties;
 
 import net.sf.json.JSONObject;
@@ -215,8 +216,10 @@ public class ExpediusHL7LabHandler {
 
 			if(status > 0 && "success".equalsIgnoreCase(audit)) {				
 				setResponseCode(OK);
+				HealthMonitor.recordOscarTransfer();
 			} else if(status == 0 && ("NULL".equalsIgnoreCase(message) || message.isEmpty()) && audit.isEmpty()) {
 				setResponseCode(OK);
+				HealthMonitor.recordOscarTransfer();
 				logger.warn("Lab uploaded completed, but with an error in the process. File " + fileName);
 			} else {					
 				logger.error("Oscar Web Service Error while persisting HL7 lab files. Server response File " + fileName + " Error Message: " + message);

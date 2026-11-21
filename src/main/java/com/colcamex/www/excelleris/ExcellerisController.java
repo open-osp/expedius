@@ -13,6 +13,7 @@ import org.w3c.dom.Node;
 
 import com.colcamex.www.bean.ConfigurationBeanInterface;
 import com.colcamex.www.handler.ExpediusMessageHandler;
+import com.colcamex.www.health.HealthMonitor;
 import com.colcamex.www.handler.ExpediusW3CDocumentHandler;
 import com.colcamex.www.http.ExpediusConnect;
 import com.colcamex.www.http.AbstractConnectionController;
@@ -196,6 +197,7 @@ public class ExcellerisController extends AbstractConnectionController {
 									
 					if(result.equalsIgnoreCase(RESPONSE_ACCESSGRANTED)) {
 						success = Boolean.TRUE;
+						HealthMonitor.recordExcellerisConnection();
 					} else {
 						handleError("Failure to log into Excelleris: " + result, null, ERROR, false);
 						logger.error("Failed to log into Excelleris.");
