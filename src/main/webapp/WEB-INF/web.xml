@@ -35,6 +35,16 @@
 		<servlet-class>com.colcamex.www.servlet.CertificateInstallAction</servlet-class>
 	</servlet>
 
+	<servlet>
+		<description>Health Check (JSON)</description>
+		<servlet-name>Health</servlet-name>
+		<servlet-class>com.colcamex.www.servlet.HealthCheckAction</servlet-class>
+	</servlet>
+
+	<servlet-mapping>
+		<servlet-name>Health</servlet-name>
+		<url-pattern>/health</url-pattern>
+	</servlet-mapping>
 	<servlet-mapping>
 		<servlet-name>FileUpload</servlet-name>
 		<url-pattern>/fileUpload</url-pattern>
